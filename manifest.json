@@ -1,0 +1,28 @@
+{
+  "manifest_version": 2,
+  "name": "Vowsh",
+  "description": "Make chat great again.",
+  "version": "0.1",
+  "content_scripts": [
+    {
+      "matches": [
+        "*://www.vaush.gg/*"
+      ],
+      "css": [
+        "lib/bootstrap-3.4.1.min.css",
+        "vowsh.css"
+      ],
+      "js": [
+        "lib/jquery-3.6.0.min.js",
+        "lib/popper-1.14.3.min.js",
+        "lib/bootstrap-3.4.1.min.js",
+        "vowsh.js"
+      ],
+      "all_frames": true
+    }
+  ],
+  "permissions": [
+    "activeTab",
+    "clipboardWrite"
+  ]
+}
