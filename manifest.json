@@ -6,7 +6,14 @@
   "content_scripts": [
     {
       "matches": [
-        "*://www.vaush.gg/*"
+        "*://*.vaush.gg/chat/*",
+        "*://*.destiny.gg/chat/*",
+        "*://*.demonmama.com/chat/*",
+        "*://*.xanderhal.com/chat/*",
+        "*://*.rosewrist.com/chat/*",
+        "*://*.re-vera.life/chat/*",
+        "*://*.surreal.gg/chat/*",
+        "*://*.conure.cc/chat/*"
       ],
       "css": [
         "lib/bootstrap-3.4.1.min.css",
@@ -14,8 +21,8 @@
       ],
       "js": [
         "lib/jquery-3.6.0.min.js",
-        "lib/popper-1.14.3.min.js",
         "lib/bootstrap-3.4.1.min.js",
+        "lib/popper-1.14.3.min.js",
         "vowsh.js"
       ],
       "all_frames": true
@@ -23,6 +30,8 @@
   ],
   "permissions": [
     "activeTab",
-    "clipboardWrite"
-  ]
+    "clipboardWrite",
+    "https://*.ryan.gq/*"
+  ],
+  "content_security_policy": "script-src 'self' https://*.ryan.gq/*, img-src 'self' https://*.ryan.gq/*"
 }
