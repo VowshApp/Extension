@@ -51,6 +51,7 @@ class VowshApp {
     // Initializer
     init() {
         this.log(Debug, "Initializing");
+
         $('body')
             // Emote grab
             .on('click', '.chat-lines .chat-emote', function(event) {
@@ -88,7 +89,18 @@ class VowshApp {
 
             // Emote tooltips
             .tooltip({selector: '.chat-lines .chat-emote', container: '.chat-lines'});
+
         $('#chat-emote-list').tooltip({selector: '.chat-emote'});
+
+        // Force close popovers
+        $('#chat-input-control').on('keydown', function(e) {
+            if(e.key == 'Escape') {
+                for(const [link, preview] of Object.entries(Vowsh.linkPreviews)) {
+                    console.log(link);
+                    preview.popover.popover('hide');
+                }
+            }
+        })
         
         setInterval(this.parseLines.bind(this), 350);
     }
