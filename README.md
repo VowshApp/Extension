@@ -1,11 +1,17 @@
 # Vowsh for Firefox & Chrome
 Make chat great again with the Vowsh extension. Improve the chatting experience with an overhauled emote menu and make VggL exactly how you like it. Please [provide any suggestions](https://github.com/VowshApp/Extension/issues) you may have as well!
 
+---
+
 ### Steal your favorite emotes
 ![Steal your favorite emotes](https://ryan.gq/vowsh/screenshots/1.png)
 
+---
+
 ### Preview links and images without clicking
 ![Preview links and images without clicking](https://ryan.gq/vowsh/screenshots/2.png)
+
+---
 
 # Get Vowsh
 ### Install from official stores (recommended)
