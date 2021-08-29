@@ -2,7 +2,7 @@
 Make chat great again with the Vowsh extension. Improve the chatting experience with an overhauled emote menu, steal your favorite emotes by clicking on them, and make VggL exactly how you like it. More features are coming soon, please [provide any suggestions](https://github.com/VowshApp/Extension/issues) you may have as well!
 
 ### Install from official stores (recommended)
-* Mozilla store link: https://addons.mozilla.org/en-US/firefox/addon/vowsh/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search
+* Mozilla store link: https://addons.mozilla.org/en-US/firefox/addon/vowsh
 * Chrome store link: [coming soon]
 
 ### Install from .zip
