@@ -1,0 +1,12 @@
+#chat-output-frame {
+    background: #2a2a2a;
+}
+.popover * {
+    color: #000;
+}
+.tooltip-inner {
+    background: rgba(255, 255, 255, 0.8);
+    font-weight: bold;
+    color: #000;
+}
+

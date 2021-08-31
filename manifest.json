@@ -17,13 +17,13 @@
       ],
       "css": [
         "lib/bootstrap-3.4.1.min.css",
-        "src/vowsh.css"
+        "dist/vowshapp.css"
       ],
       "js": [
         "lib/jquery-3.6.0.min.js",
         "lib/bootstrap-3.4.1.min.js",
         "lib/popper-1.14.3.min.js",
-        "src/vowsh.js"
+        "dist/vowshapp.js"
       ],
       "all_frames": true
     }
