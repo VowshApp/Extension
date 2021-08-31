@@ -195,11 +195,11 @@ class VowshApp {
             feature.init();
         }
 
-        setInterval(this.parseLines.bind(this), 350);
+        setInterval(this.parseChat.bind(this), 350);
     }
 
     // Handle new chat messages
-    parseLines() {
+    parseChat() {
         var lines = $('.msg-chat:not(.vowshed)');
         for(var i = 0; i < lines.length; i++) {
             var line = lines.eq(i);
