@@ -5,12 +5,7 @@ class PreviewFeature extends Feature {
     }
     
     init() {
-        Vowsh.log(Debug, "Initializing preview feature");
-        
-        // Open a preview
         $('body').on('mouseover', 'a', this.onMouseover.bind(this));
-
-        // Force close previews
         $('#chat-input-control').on('keydown', this.onKeydown.bind(this));
     }
 
@@ -82,12 +77,10 @@ class PreviewLoader {
         if(type.indexOf('html') > -1) {
             this.title = '';
             this.content = content;
-            Vowsh.log(Debug, 'HTML preview received');
         }
         else if(type.indexOf('json') > -1) {
             this.title = content.title;
             this.content = content.content;
-            Vowsh.log(Debug, 'Plaintext preview received');
         }
         else {
             Vowsh.log(Fail, 'Unknown preview type returned: ' + type);

@@ -13,32 +13,16 @@ class VowshApp {
         this.features.push(new AutocompleteFeature(this));
         this.features.push(new SettingsFeature(this));
 
-        this.log(Debug, "Initializing");
         for(const feature of this.features) {
-            console.log(feature);
+            this.log(Debug, "Initializing " + feature.constructor.name);
             feature.init();
         }
 
-        $.fn.getCursorPosition = function() {
-            var el = $(this).get(0);
-            var pos = 0;
-            if('selectionStart' in el) {
-                pos = el.selectionStart;
-            } else if('selection' in document) {
-                el.focus();
-                var Sel = document.selection.createRange();
-                var SelLength = document.selection.createRange().text.length;
-                Sel.moveStart('character', -el.value.length);
-                pos = Sel.text.length - SelLength;
-            }
-            return pos;
-        }
-
-        setInterval(this.parseLines.bind(this), 350);
+        setInterval(this.parseChat.bind(this), 350);
     }
 
     // Handle new chat messages
-    parseLines() {
+    parseChat() {
         var lines = $('.msg-chat:not(.vowshed)');
         for(var i = 0; i < lines.length; i++) {
             var line = lines.eq(i);

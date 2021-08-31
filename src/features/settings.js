@@ -1,8 +1,4 @@
 class SettingsFeature extends Feature {
-    constructor(vowsh) {
-        super(vowsh);
-    }
-
     init() {
         if($('#chat-settings-form').hasClass('vowshed'))
             return;
@@ -21,6 +17,4 @@ class SettingsFeature extends Feature {
             )
             .addClass('vowshed');
     }
-
-    onMessage(message) {}
 }

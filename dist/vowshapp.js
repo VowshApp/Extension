@@ -8,31 +8,21 @@ class Feature {
 }
 
 class EmoteFeature extends Feature {
-    constructor(vowsh) {
-        super(vowsh);
-    }
-
     init() {
-        Vowsh.log(Debug, "Initializing emote feature");
-        // Emote grab/tooltip
         $('#chat-emote-list').tooltip({selector: '.chat-emote'});
         $('body')
             .tooltip({selector: '.chat-lines .chat-emote', container: '.chat-lines'})
-            .on('click', '.chat-lines .chat-emote', function(event) {
-                var input = $('#chat-input-control');
-                var space = input.val().length && input.val().substr(input.val().length - 1) != ' ' ? ' ' : '';
-                input.val(input.val() + space + $(event.target).text() + ' ');
-            })
-            .on('keyup', this.onKeyup.bind(this));
+            .on('click', '.chat-lines .chat-emote', this.onClick.bind(this));
     }
 
-    // Make emotes look clickable
     onMessage(message) {
         message.find('.chat-emote').css('cursor', 'pointer');
     }
 
-    onKeyup(event) {
-        Vowsh.log(Debug, 'Textarea cursor is at position ' + $('#chat-input-control').getCursorPosition());
+    onClick(event) {
+        var input = $('#chat-input-control');
+        var space = input.val().length && input.val().substr(input.val().length - 1) != ' ' ? ' ' : '';
+        input.val(input.val() + space + $(event.target).text() + ' ');
     }
 }
 
@@ -43,12 +33,7 @@ class PreviewFeature extends Feature {
     }
     
     init() {
-        Vowsh.log(Debug, "Initializing preview feature");
-        
-        // Open a preview
         $('body').on('mouseover', 'a', this.onMouseover.bind(this));
-
-        // Force close previews
         $('#chat-input-control').on('keydown', this.onKeydown.bind(this));
     }
 
@@ -120,12 +105,10 @@ class PreviewLoader {
         if(type.indexOf('html') > -1) {
             this.title = '';
             this.content = content;
-            Vowsh.log(Debug, 'HTML preview received');
         }
         else if(type.indexOf('json') > -1) {
             this.title = content.title;
             this.content = content.content;
-            Vowsh.log(Debug, 'Plaintext preview received');
         }
         else {
             Vowsh.log(Fail, 'Unknown preview type returned: ' + type);
@@ -144,17 +127,34 @@ class PreviewLoader {
 class AutocompleteFeature extends Feature {
     constructor(vowsh) {
         super(vowsh);
+        this.input = $('#chat-input-control');
     }
 
-    init() {}
-    onMessage(message) {}
+    init() {
+        this.input.on('keyup', this.onKeyup.bind(this));
+    }
+
+    onKeyup(event) {
+        Vowsh.log(Debug, 'Cursor is at position ' + this.getCursorPosition());
+    }
+
+    getCursorPosition() {
+        var el = this.input.get(0);
+        var pos = 0;
+        if('selectionStart' in el) {
+            pos = el.selectionStart;
+        } else if('selection' in document) {
+            el.focus();
+            var Sel = document.selection.createRange();
+            var SelLength = document.selection.createRange().text.length;
+            Sel.moveStart('character', -el.value.length);
+            pos = Sel.text.length - SelLength;
+        }
+        return pos;
+    }
 }
 
 class SettingsFeature extends Feature {
-    constructor(vowsh) {
-        super(vowsh);
-    }
-
     init() {
         if($('#chat-settings-form').hasClass('vowshed'))
             return;
@@ -173,8 +173,6 @@ class SettingsFeature extends Feature {
             )
             .addClass('vowshed');
     }
-
-    onMessage(message) {}
 }
 
 const Debug = 0, Warn = 1, Fail = 2;
@@ -192,25 +190,9 @@ class VowshApp {
         this.features.push(new AutocompleteFeature(this));
         this.features.push(new SettingsFeature(this));
 
-        this.log(Debug, "Initializing");
         for(const feature of this.features) {
-            console.log(feature);
+            this.log(Debug, "Initializing " + feature.constructor.name);
             feature.init();
-        }
-
-        $.fn.getCursorPosition = function() {
-            var el = $(this).get(0);
-            var pos = 0;
-            if('selectionStart' in el) {
-                pos = el.selectionStart;
-            } else if('selection' in document) {
-                el.focus();
-                var Sel = document.selection.createRange();
-                var SelLength = document.selection.createRange().text.length;
-                Sel.moveStart('character', -el.value.length);
-                pos = Sel.text.length - SelLength;
-            }
-            return pos;
         }
 
         setInterval(this.parseLines.bind(this), 350);
