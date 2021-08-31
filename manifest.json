@@ -17,13 +17,13 @@
       ],
       "css": [
         "lib/bootstrap-3.4.1.min.css",
-        "vowsh.css"
+        "src/vowsh.css"
       ],
       "js": [
         "lib/jquery-3.6.0.min.js",
         "lib/bootstrap-3.4.1.min.js",
         "lib/popper-1.14.3.min.js",
-        "vowsh.js"
+        "src/vowsh.js"
       ],
       "all_frames": true
     }
@@ -32,6 +32,5 @@
     "activeTab",
     "clipboardWrite",
     "https://*.ryan.gq/*"
-  ],
-  "content_security_policy": "script-src 'self' https://*.ryan.gq/*, img-src 'self' https://*.ryan.gq/*"
+  ]
 }
