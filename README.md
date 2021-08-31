@@ -25,8 +25,10 @@ Supported streams: Vaush.gg, Destiny.gg, Demonmama.com, Xanderhal.com, Rosewrist
 * Open "Extensions" in your browser, enable developer/advanced mode, and select "install extension from file/.zip"
 
 ### Preview builds
-[Download the latest source code](https://github.com/VowshApp/Extension/archive/refs/heads/main.zip) and install the extension in debug mode to access the latest features.
+[Download the latest source code](https://github.com/VowshApp/Extension/archive/refs/heads/main.zip) and install the extension in developer mode to access the latest features.
 
 ---
+
+Build the extension using build.py. This simply takes all of the separate files and combines them in order. You can even copy and paste each file manually into the dist folder.
 
 View changelogs on the [Releases page](https://github.com/VowshApp/Extension/releases).
