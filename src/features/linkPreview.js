@@ -1,4 +1,4 @@
-class PreviewFeature extends Feature {
+class LinkPreviewFeature extends Feature {
     constructor(vowsh) {
         super(vowsh);
         this.previews = {};
@@ -32,7 +32,7 @@ class PreviewFeature extends Feature {
                 .popover('show');
             
             if(!this.previews.hasOwnProperty(hrefEncoded))
-                this.previews[hrefEncoded] = new PreviewLoader(href);
+                this.previews[hrefEncoded] = new LinkPreviewLoader(href);
             
             this.previews[hrefEncoded].load(target);
         }
@@ -48,7 +48,7 @@ class PreviewFeature extends Feature {
 }
 
 // Link preview handler.
-class PreviewLoader {
+class LinkPreviewLoader {
     constructor(href) {
         this.href = href;
         this.content = null;
@@ -92,6 +92,5 @@ class PreviewLoader {
         this.popover.data('bs.popover').options.title = this.title;
         this.popover.data('bs.popover').options.content = this.content;
         this.popover.popover('show');
-        Vowsh.log(Debug, 'Displaying popover: ' + this.popover);
     }
 }
