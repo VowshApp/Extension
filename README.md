@@ -23,7 +23,7 @@ Supported streams: Vaush.gg, Destiny.gg, Demonmama.com, Xanderhal.com, Rosewrist
 # Get Vowsh
 ### Install from official stores (recommended)
 * Mozilla store link: https://addons.mozilla.org/en-US/firefox/addon/vowsh
-* Chrome store link: https://ryan.gq/vowsh/downloads/chrome/vowsh-preview-0.3.crx (pre-release)
+* Chrome store link: https://chrome.google.com/webstore/detail/vowsh/mjkalnjpcopnakelpgagpkaamflcfnoe
 
 
 ### Install from .zip
