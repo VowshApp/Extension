@@ -7,6 +7,7 @@ class AutocompleteFeature extends Feature {
     init() {
         if(!$('#autocomplete').length)
             $('#chat-input-frame').prepend('<div id="autocomplete"></div>');
+        $('#autocomplete').hide();
 
         this.input.on('keyup', this.onKeyup.bind(this));
         this.input.on('keydown', function(event) {

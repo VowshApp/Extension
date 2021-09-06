@@ -207,6 +207,7 @@ class AutocompleteFeature extends Feature {
     init() {
         if(!$('#autocomplete').length)
             $('#chat-input-frame').prepend('<div id="autocomplete"></div>');
+        $('#autocomplete').hide();
 
         this.input.on('keyup', this.onKeyup.bind(this));
         this.input.on('keydown', function(event) {
@@ -339,16 +340,15 @@ class VowshApp {
         this.features.push(new AutocompleteFeature(this));
         this.features.push(new SettingsFeature(this));
 
-        $.get('//' + window.location.host + '/api/chat/me')
+        $.get('https://' + window.location.host + '/api/chat/me')
             .done(function(user) {
                 Vowsh.user = user;
                 Vowsh.log(Debug, 'Signed in as ' + user.username);
+                setInterval(Vowsh.parseChat.bind(Vowsh), 300);
             })
             .fail(function(a, b, c) {
                 Vowsh.log(Fail, 'Failed to get profile:');
                 console.log(a, b, c);
-            })
-            .always(function() {
                 setInterval(Vowsh.parseChat.bind(Vowsh), 300);
             });
 
