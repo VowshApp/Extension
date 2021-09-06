@@ -15,10 +15,16 @@ Supported streams: Vaush.gg, Destiny.gg, Demonmama.com, Xanderhal.com, Rosewrist
 
 ---
 
+### Enhanced autocomplete and FrankerFaceZ emotes
+![Enhanced autocomplete and FrankerFaceZ emotes](https://ryan.gq/vowsh/screenshots/3.png)
+
+---
+
 # Get Vowsh
 ### Install from official stores (recommended)
 * Mozilla store link: https://addons.mozilla.org/en-US/firefox/addon/vowsh
-* Chrome store link: [coming soon]
+* Chrome store link: https://ryan.gq/vowsh/downloads/chrome/vowsh-preview-0.3.crx (pre-release)
+
 
 ### Install from .zip
 * [Download the latest .zip release](https://github.com/VowshApp/Extension/releases)
