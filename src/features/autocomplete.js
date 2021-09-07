@@ -79,7 +79,7 @@ class AutocompleteFeature extends Feature {
 
                         var styles = '';
                         if(emote.sprite)
-                            styles += " background-image: url('" + emote.sprite + "');";
+                            styles += ' background-image: url(' + emote.sprite + ');';
                         if(!generify.length && invalidModifier)
                             styles += ' opacity: 0.625;';
 
