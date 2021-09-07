@@ -1,10 +1,10 @@
 # Vowsh for Firefox & Chrome
 Make chat great again with the Vowsh extension. Improve the chatting experience with an overhauled emote menu and make Whitele.af exactly how you like it. Please [provide any suggestions](https://github.com/VowshApp/Extension/issues) you may have as well!
 
-#### Get Vowsh
+### Get Vowsh
 Chrome and Firefox links are available below.
 
-#### Supported streams
+### Supported streams
 
 Fully supported: Vaush.gg, DemonMama.com, Xanderhal.com, Re-Vera.life, RoseWrist.com, Conure.cc
 
