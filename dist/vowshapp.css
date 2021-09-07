@@ -24,6 +24,9 @@
     height: 20px;
 }
 
+#chat-auto-complete {
+    animation: none !important;
+}
 #autocomplete {
     position: absolute;
     width: 100%;
@@ -31,8 +34,17 @@
     overflow: hidden;
     left: 0;
     right: 0;
-    top: -58px;
-    line-height: 38px;
+    top: -36px;
+    line-height: 36px;
     background: rgba(0, 0, 0, 0.65);
+    transition: top 0.033s ease-in;
+}
+#autocomplete.stacked {
+    top: -60px !important;
+}
+
+.chat-emote,
+.autocomplete-emote {
+    cursor: pointer;
 }
 

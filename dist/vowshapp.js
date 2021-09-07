@@ -91,7 +91,7 @@ class MoreEmotesFeature extends Feature {
                 text = text.replace(
                     regex,
                     '<span class="chat-emote ' + type + '" title="' + emote.name + '"'
-                        + ' style="cursor: pointer; background-image: url(' + emote.sprite + ')">'
+                        + ' style="background-image: url(' + emote.sprite + ')">'
                         + emote.name
                         + '</span>'
                 );
@@ -206,8 +206,7 @@ class AutocompleteFeature extends Feature {
 
     init() {
         if(!$('#autocomplete').length)
-            $('#chat-input-frame').prepend('<div id="autocomplete"></div>');
-        $('#autocomplete').hide();
+            $('<div id="autocomplete"></div>').hide().prependTo('#chat-input-frame');
 
         this.input.on('keyup', this.onKeyup.bind(this));
         this.input.on('keydown', function(event) {
@@ -215,14 +214,20 @@ class AutocompleteFeature extends Feature {
             if(event.key == 'Escape')
                 $('#autocomplete').hide();
         });
+
+        setInterval(this.position.bind(this), 150);
+    }
+
+    position() {
+        $('#autocomplete').toggleClass('stacked', $('#chat-auto-complete').is('.active'));
     }
 
     onKeyup(event) {
         if(this.Vowsh.emotes) {
             if(this.input.val().length) {
-                // Override autocomplete
+                // Autocomplete
                 var cursor = this.input.val().slice(0, this.Vowsh.getCursorPosition(this.input));
-                if(new RegExp('[A-Za-z]+').test(cursor.substr(cursor.length - 1, 1))) {
+                if(new RegExp('[A-Za-z:]+').test(cursor.substr(cursor.length - 1, 1))) {
                     cursor = cursor.split(' ');
                     cursor = cursor[cursor.length - 1];
                     if(event.key != 'Escape')
@@ -236,7 +241,7 @@ class AutocompleteFeature extends Feature {
                             class: 'chat-emote-' + emote
                         });
                     }
-                    if(this.Vowsh.user.subscription) {
+                    if(this.Vowsh.user && this.Vowsh.user.subscription) {
                         for(const i in this.Vowsh.emotes.subscribers) {
                             var emote = this.Vowsh.emotes.subscribers[i];
                             emotes.push({
@@ -254,36 +259,77 @@ class AutocompleteFeature extends Feature {
                     }
 
                     var autocomplete = '';
-                    var push = function(emote) {
-                        var type = 'more-emote' + (emote.name.indexOf('wide') === 0 ? ' more-emote-wide' : '');
+                    var add = function(emote, modifiers = null) {
+                        var generify = [];
+                        var invalidModifier = false;
+                        if(modifiers !== null) {
+                            for(var mod of modifiers) {
+                                if(Vowsh.emoteModifiers.hasOwnProperty(mod.toLowerCase()))
+                                    generify.push(Vowsh.emoteModifiers[mod.toLowerCase()].generify);
+                                else
+                                    invalidModifier = true;
+                            }
+                        }
+
+                        var classes = 'autocomplete-emote chat-emote';
+                        if(emote.class)
+                            classes += ' ' + emote.class;
+                        else
+                            classes += ' more-emote' + (emote.name.indexOf('wide') === 0 ? ' more-emote-wide' : '');
+
+                        var styles = '';
+                        if(emote.sprite)
+                            styles += " background-image: url('" + emote.sprite + "');";
+                        if(!generify.length && invalidModifier)
+                            styles += ' opacity: 0.625;';
+
+                        if(generify.length)
+                            autocomplete += '<div class="generify-container ' + generify.join(' ') + '"'
+                                          + (invalidModifier ? ' style="opacity: 0.625"' : '') + '>';
                         autocomplete +=
-                            '<span class="autocomplete-emote chat-emote' + (emote.class ? ' ' + emote.class : ' ' + type) + '"'
-                            + (emote.sprite ? ' style="cursor: pointer; background-image: url(' + emote.sprite + ')"' : '')
-                            + ' title="' + emote.name + '">'
-                            + emote.name
+                            '<span class="' + classes + '" style="' + styles + '" title="' + emote.name + '">'
+                                + emote.name
                             + '</span>';
+                        if(generify.length)
+                            autocomplete += '</div>';
                     }
                     
                     var bestMatches = [];
                     var otherMatches = [];
-                    for(const i in emotes) {
-                        var emote = emotes[i];
-                        if(emote.name.toLowerCase().indexOf(cursor.toLowerCase()) > -1) {
-                            if(emote.name.toLowerCase().indexOf(cursor.toLowerCase()) === 0)
-                                bestMatches.push(emote);
-                            else
-                                otherMatches.push(emote);
+                    var find = function(emote, exact) {
+                        for(const i in emotes) {
+                            var e = emotes[i];
+                            if(exact && e.name.toLowerCase() == emote.toLowerCase())
+                                return e;
+                            if(!exact && e.name.toLowerCase().indexOf(emote.toLowerCase()) > -1) {
+                                if(e.name.toLowerCase().indexOf(emote.toLowerCase()) === 0)
+                                    bestMatches.push(e);
+                                else
+                                    otherMatches.push(e);
+                            }
                         }
+                        return null;
                     }
 
+                    find(cursor, false);
                     for(const i in bestMatches)
-                        push(bestMatches[i])
+                        add(bestMatches[i])
                     for(const i in otherMatches)
-                        push(otherMatches[i])
+                        add(otherMatches[i])
 
-                    if(autocomplete.length) {
+                    if(bestMatches.length + otherMatches.length > 0) {
                         $('#autocomplete').html(autocomplete);
                         return;
+                    }
+                    else if(cursor.indexOf(':') > -1) {
+                        var emote = find(cursor.split(':')[0], true);
+                        var modifiers = cursor.split(':').splice(1);
+                        if(emote) {
+                            autocomplete = '';
+                            add(emote, modifiers);
+                            $('#autocomplete').html(autocomplete);
+                            return;
+                        }
                     }
                 }
             }
@@ -302,12 +348,17 @@ class SettingsFeature extends Feature {
             .prepend(
                 '<h4 class="text-white" style="color: orange">Vowsh Settings</h4>' +
                 '<div class="form-check">' +
-                    '<input id="sync" class="form-check-input" type="checkbox"> ' +
-                    '<label for="sync" class="form-check-label">' +
-                        'More emotes' +
+                    '<input id="more-emotes" class="form-check-input" type="checkbox" disabled checked> ' +
+                    '<label for="more-emotes" class="form-check-label">' +
+                        'FrankerFaceZ emotes' +
                     '</label>' +
                 '</div>' +
-                '<button id="reset" class="btn btn-sm btn-warning">Reset</button>' +
+                '<div class="form-check">' +
+                    '<input id="more-emotes" class="form-check-input" type="checkbox" disabled checked> ' +
+                    '<label for="more-emotes" class="form-check-label">' +
+                        'Enhanced autocomplete' +
+                    '</label>' +
+                '</div>' +
                 '<hr style="border-top: 1px solid #444">'
             )
             .addClass('vowshed');
@@ -330,6 +381,28 @@ class VowshApp {
     constructor() {
         this.logLevel = Debug;
         this.features = [];
+        this.emoteModifiers = {
+            asex: { generify: 'asex flag' },
+            bi: { generify: 'bi flag' },
+            cancelled: { generify: 'cancelled' },
+            dank: { generify: 'generify-dank' },
+            enby: { generify: 'enby flag' },
+            flip: { generify: 'flip' },
+            genderfluid: { generify: 'genderfluid flag' },
+            lag: { generify: 'lag' },
+            lesbian: { generify: 'lesbian flag' },
+            love: { generify: 'generify-love' },
+            mirror: { generify: 'mirror' },
+            pan: { generify: 'pan flag' },
+            pride: { generify: 'pride flag' },
+            rain: { generify: 'weather rain anim-fix' },
+            rustle: { generify: 'generify-rustle' },
+            snow: { generify: 'weather snow anim-fix' },
+            spin: { generify: 'generify-spin' },
+            trans: { generify: 'trans flag' },
+            wide: { generify: 'wide' },
+            worth: { generify: 'generify-worth' }
+        }
     }
 
     // Initializer
@@ -343,13 +416,11 @@ class VowshApp {
         $.get('https://' + window.location.host + '/api/chat/me')
             .done(function(user) {
                 Vowsh.user = user;
-                Vowsh.log(Debug, 'Signed in as ' + user.username);
-                setInterval(Vowsh.parseChat.bind(Vowsh), 300);
+                setInterval(Vowsh.parseChat.bind(Vowsh), 250);
             })
             .fail(function(a, b, c) {
-                Vowsh.log(Fail, 'Failed to get profile:');
                 console.log(a, b, c);
-                setInterval(Vowsh.parseChat.bind(Vowsh), 300);
+                setInterval(Vowsh.parseChat.bind(Vowsh), 250);
             });
 
         for(const feature of this.features) {

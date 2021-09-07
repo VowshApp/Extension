@@ -32,7 +32,7 @@ class MoreEmotesFeature extends Feature {
                 text = text.replace(
                     regex,
                     '<span class="chat-emote ' + type + '" title="' + emote.name + '"'
-                        + ' style="cursor: pointer; background-image: url(' + emote.sprite + ')">'
+                        + ' style="background-image: url(' + emote.sprite + ')">'
                         + emote.name
                         + '</span>'
                 );

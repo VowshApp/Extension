@@ -8,12 +8,17 @@ class SettingsFeature extends Feature {
             .prepend(
                 '<h4 class="text-white" style="color: orange">Vowsh Settings</h4>' +
                 '<div class="form-check">' +
-                    '<input id="sync" class="form-check-input" type="checkbox"> ' +
-                    '<label for="sync" class="form-check-label">' +
-                        'More emotes' +
+                    '<input id="more-emotes" class="form-check-input" type="checkbox" disabled checked> ' +
+                    '<label for="more-emotes" class="form-check-label">' +
+                        'FrankerFaceZ emotes' +
                     '</label>' +
                 '</div>' +
-                '<button id="reset" class="btn btn-sm btn-warning">Reset</button>' +
+                '<div class="form-check">' +
+                    '<input id="more-emotes" class="form-check-input" type="checkbox" disabled checked> ' +
+                    '<label for="more-emotes" class="form-check-label">' +
+                        'Enhanced autocomplete' +
+                    '</label>' +
+                '</div>' +
                 '<hr style="border-top: 1px solid #444">'
             )
             .addClass('vowshed');

@@ -4,6 +4,28 @@ class VowshApp {
     constructor() {
         this.logLevel = Debug;
         this.features = [];
+        this.emoteModifiers = {
+            asex: { generify: 'asex flag' },
+            bi: { generify: 'bi flag' },
+            cancelled: { generify: 'cancelled' },
+            dank: { generify: 'generify-dank' },
+            enby: { generify: 'enby flag' },
+            flip: { generify: 'flip' },
+            genderfluid: { generify: 'genderfluid flag' },
+            lag: { generify: 'lag' },
+            lesbian: { generify: 'lesbian flag' },
+            love: { generify: 'generify-love' },
+            mirror: { generify: 'mirror' },
+            pan: { generify: 'pan flag' },
+            pride: { generify: 'pride flag' },
+            rain: { generify: 'weather rain anim-fix' },
+            rustle: { generify: 'generify-rustle' },
+            snow: { generify: 'weather snow anim-fix' },
+            spin: { generify: 'generify-spin' },
+            trans: { generify: 'trans flag' },
+            wide: { generify: 'wide' },
+            worth: { generify: 'generify-worth' }
+        }
     }
 
     // Initializer
@@ -17,13 +39,11 @@ class VowshApp {
         $.get('https://' + window.location.host + '/api/chat/me')
             .done(function(user) {
                 Vowsh.user = user;
-                Vowsh.log(Debug, 'Signed in as ' + user.username);
-                setInterval(Vowsh.parseChat.bind(Vowsh), 300);
+                setInterval(Vowsh.parseChat.bind(Vowsh), 250);
             })
             .fail(function(a, b, c) {
-                Vowsh.log(Fail, 'Failed to get profile:');
                 console.log(a, b, c);
-                setInterval(Vowsh.parseChat.bind(Vowsh), 300);
+                setInterval(Vowsh.parseChat.bind(Vowsh), 250);
             });
 
         for(const feature of this.features) {
