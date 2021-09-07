@@ -10,7 +10,7 @@ class SettingsFeature extends Feature {
                 '<div class="form-check">' +
                     '<input id="more-emotes" class="form-check-input" type="checkbox" disabled checked> ' +
                     '<label for="more-emotes" class="form-check-label">' +
-                        'FrankerFaceZ emotes' +
+                        'More emotes' +
                     '</label>' +
                 '</div>' +
                 '<div class="form-check">' +

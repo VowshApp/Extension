@@ -9,8 +9,6 @@ class Feature {
 
 class EmoteGrabFeature extends Feature {
     init() {
-        $('#chat-emote-list').tooltip({selector: '.chat-emote'});
-
         $('body')
             .tooltip({selector: '.chat-lines .chat-emote', container: '.chat-lines'})
             .on('click', '.chat-lines .chat-emote', this.onClick.bind(this))
@@ -19,6 +17,8 @@ class EmoteGrabFeature extends Feature {
             .tooltip({selector: '#autocomplete .chat-emote', container: '#chat-input-frame'})
             .on('click', '#autocomplete .chat-emote', this.onClick.bind(this))
             .on('keydown', this.onKeydown.bind(this));
+
+        $('#chat-emote-list').tooltip({selector: '.chat-emote'});
     }
 
     onMessage(message) {
@@ -378,7 +378,7 @@ class SettingsFeature extends Feature {
                 '<div class="form-check">' +
                     '<input id="more-emotes" class="form-check-input" type="checkbox" disabled checked> ' +
                     '<label for="more-emotes" class="form-check-label">' +
-                        'FrankerFaceZ emotes' +
+                        'More emotes' +
                     '</label>' +
                 '</div>' +
                 '<div class="form-check">' +

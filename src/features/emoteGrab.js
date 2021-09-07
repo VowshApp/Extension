@@ -1,7 +1,5 @@
 class EmoteGrabFeature extends Feature {
     init() {
-        $('#chat-emote-list').tooltip({selector: '.chat-emote'});
-
         $('body')
             .tooltip({selector: '.chat-lines .chat-emote', container: '.chat-lines'})
             .on('click', '.chat-lines .chat-emote', this.onClick.bind(this))
@@ -10,6 +8,8 @@ class EmoteGrabFeature extends Feature {
             .tooltip({selector: '#autocomplete .chat-emote', container: '#chat-input-frame'})
             .on('click', '#autocomplete .chat-emote', this.onClick.bind(this))
             .on('keydown', this.onKeydown.bind(this));
+
+        $('#chat-emote-list').tooltip({selector: '.chat-emote'});
     }
 
     onMessage(message) {
