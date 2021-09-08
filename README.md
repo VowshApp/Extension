@@ -10,6 +10,9 @@ Fully supported: Vaush.gg, DemonMama.com, Xanderhal.com, Re-Vera.life, RoseWrist
 
 Vowsh is currently incompatible with Destiny.gg -- let me know if you want that fixed!
 
+### Supported emotes
+[Full, interactable list of emotes](https://ryan.gq/vowsh)
+
 ---
 
 ### Steal your favorite emotes
