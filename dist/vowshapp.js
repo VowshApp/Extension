@@ -69,6 +69,11 @@ class MoreEmotesFeature extends Feature {
     reload() {
         $.get('https://ryan.gq/vowsh/emotes?channel=' + btoa(window.location.host)).done(function(emotes) {
             Vowsh.emotes = emotes;
+            /*var css = '';
+            for(const emote of Vowsh.emotes.more) {
+                css += '.chat-emote-' + emote.name + '{background:url(' + emote.sprite + ')}';
+            }
+            $('body').prepend('<style>' + css + '</style>');*/
 
             var emoteList = $('#chat-emote-list .content');
             var emotes = '';

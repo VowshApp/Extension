@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Vowsh",
     "description": "Make chat great again.",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "content_scripts": [
       {
         "matches": [
@@ -35,6 +35,6 @@
     ],
     "host_permissions": [
       "https://*.ryan.gq/*"
-    ]
+    ],
   }
   

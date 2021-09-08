@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "Vowsh",
     "description": "Make chat great again.",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "content_scripts": [
       {
         "matches": [
@@ -31,8 +31,22 @@
     "permissions": [
       "activeTab",
       "clipboardWrite",
+      "webRequest",
+      "webRequestBlocking",
       "storage",
-      "https://*.ryan.gq/*"
-    ]
+      "https://*.ryan.gq/*",
+      "https://*.vaush.gg/*",
+      "https://*.destiny.gg/*",
+      "https://*.demonmama.com/*",
+      "https://*.re-vera.life/*",
+      "https://*.conure.cc/*",
+      "https://*.xanderhal.com/*",
+      "https://*.rosewrist.com/*"
+    ],
+    "background": {
+      "scripts": [
+        "background.js"
+      ]
+    }
   }
   
