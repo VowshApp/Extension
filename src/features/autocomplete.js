@@ -37,24 +37,21 @@ class AutocompleteFeature extends Feature {
                     for(const i in this.Vowsh.emotes.default) {
                         var emote = this.Vowsh.emotes.default[i];
                         emotes.push({
-                            name: emote,
-                            class: 'chat-emote-' + emote
+                            name: emote
                         });
                     }
                     if(this.Vowsh.user && this.Vowsh.user.subscription) {
                         for(const i in this.Vowsh.emotes.subscribers) {
                             var emote = this.Vowsh.emotes.subscribers[i];
                             emotes.push({
-                                name: emote,
-                                class: 'chat-emote-' + emote
+                                name: emote
                             });
                         }
                     }
                     for(const i in this.Vowsh.emotes.more) {
                         var emote = this.Vowsh.emotes.more[i];
                         emotes.push({
-                            name: emote.name,
-                            sprite: emote.sprite
+                            name: emote.name
                         });
                     }
 
@@ -71,25 +68,19 @@ class AutocompleteFeature extends Feature {
                             }
                         }
 
-                        var classes = 'autocomplete-emote chat-emote';
-                        if(emote.class)
-                            classes += ' ' + emote.class;
-                        else
-                            classes += ' more-emote' + (emote.name.indexOf('wide') === 0 ? ' more-emote-wide' : '');
-
+                        var classes = 'autocomplete-emote chat-emote chat-emote-' + emote.name;
                         var styles = '';
-                        if(emote.sprite)
-                            styles += ' background-image: url(' + emote.sprite + ');';
-                        if(!generify.length && invalidModifier)
-                            styles += ' opacity: 0.625;';
-
                         if(generify.length)
                             autocomplete += '<div class="generify-container ' + generify.join(' ') + '"'
                                           + (invalidModifier ? ' style="opacity: 0.625"' : '') + '>';
+                        else if(invalidModifier)
+                            styles += ' opacity: 0.625;';
+
                         autocomplete +=
                             '<span class="' + classes + '" style="' + styles + '" title="' + emote.name + '">'
                                 + emote.name
                             + '</span>';
+
                         if(generify.length)
                             autocomplete += '</div>';
                     }
@@ -97,8 +88,7 @@ class AutocompleteFeature extends Feature {
                     var bestMatches = [];
                     var otherMatches = [];
                     var find = function(emote, exact) {
-                        for(const i in emotes) {
-                            var e = emotes[i];
+                        for(const e of emotes) {
                             if(exact && e.name.toLowerCase() == emote.toLowerCase())
                                 return e;
                             if(!exact && e.name.toLowerCase().indexOf(emote.toLowerCase()) > -1) {

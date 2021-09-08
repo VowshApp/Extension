@@ -45,8 +45,10 @@
     ],
     "background": {
       "scripts": [
+        "lib/jquery-3.6.0.min.js",
         "background.js"
-      ]
+      ],
+      "persistent": true
     }
   }
   

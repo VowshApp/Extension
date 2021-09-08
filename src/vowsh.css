@@ -5,29 +5,20 @@
 .popover * {
     color: #000;
 }
+
 .tooltip-inner {
     background: rgba(255, 255, 255, 0.8);
     font-weight: bold;
     color: #000;
 }
-
-.more-emote {
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: 0px 0px;
-    margin-top: -30px;
-    height: 30px;
-    width: 30px;
-}
-.more-emote-wide {
-    margin-top: -20px;
-    width: 90px;
-    height: 20px;
+.tooltip-arrow {
+    border-top-color: rgba(255, 255, 255, 0.8) !important;
 }
 
 #chat-auto-complete {
     animation: none !important;
 }
+
 #autocomplete {
     position: absolute;
     width: 100%;
@@ -45,7 +36,6 @@
     top: -60px !important;
 }
 
-.chat-emote,
-.autocomplete-emote {
+.chat-emote {
     cursor: pointer;
 }

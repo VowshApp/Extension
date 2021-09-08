@@ -69,11 +69,26 @@ class MoreEmotesFeature extends Feature {
     reload() {
         $.get('https://ryan.gq/vowsh/emotes?channel=' + btoa(window.location.host)).done(function(emotes) {
             Vowsh.emotes = emotes;
-            /*var css = '';
+            
+            var css = '';
             for(const emote of Vowsh.emotes.more) {
-                css += '.chat-emote-' + emote.name + '{background:url(' + emote.sprite + ')}';
+                css +=
+                    '.chat-emote-' + emote.name + ' {'
+                        + 'background: url(' + emote.sprite + ') no-repeat;'
+                        + 'background-size: contain;'
+                        + 'background-position: 0px 0px;'
+                        + (emote.name.indexOf('wide') !== 0 ? (
+                            'margin-top: -30px;'
+                            + 'height: 30px;'
+                            + 'width: 30px;'
+                        ) : (
+                            'margin-top: -20px;'
+                            + 'width: 90px;'
+                            + 'height: 20px;'
+                        ))
+                    + '}';
             }
-            $('body').prepend('<style>' + css + '</style>');*/
+            $('body').prepend('<style>' + css + '</style>');
 
             var emoteList = $('#chat-emote-list .content');
             var emotes = '';
@@ -81,11 +96,9 @@ class MoreEmotesFeature extends Feature {
                 emotes += '<div style="font-weight: 900">Vowsh Emotes</div>';
                 emotes += '<div id="vowsh-emotes" class="emote-group">';
                 for(const emote of Vowsh.emotes.more) {
-                    var type = emote.name.indexOf('wide') === 0 ? ' more-emote-wide' : '';
-                    var style = ' style="background-image: url(' + emote.sprite + ');' + '"';
                     emotes +=
                         '<div class="emote" style="padding: 0.1em">'
-                            + '<span class="chat-emote more-emote' + type + '" title="' + emote.name + '"' + style + '>'
+                            + '<span class="chat-emote chat-emote-' + emote.name + '" title="' + emote.name + '">'
                                 + emote.name
                             + '</span>'
                         + '</div>';
@@ -105,32 +118,8 @@ class MoreEmotesFeature extends Feature {
     }
 
     onMessage(message) {
-        var text = message.find('.text').html();
-        for(const i in this.Vowsh.emotes.more) {
-            var emote = this.Vowsh.emotes.more[i];
-            var regex = new RegExp('\\b(' + emote.name + ')(?::([a-z:]{2,}))?(?!\\S)\\b', 'gm');
-            var matches = text.match(regex);
-            if(matches) {
-                for(const match of matches) {
-                    var modifiers = match.split(':').splice(1);
-                    var generify = [];
-                    for(const mod of modifiers)
-                        if(Vowsh.emoteModifiers.hasOwnProperty(mod.toLowerCase()))
-                            generify.push(Vowsh.emoteModifiers[mod.toLowerCase()].generify);
-                    
-                    var type = 'more-emote' + (emote.name.indexOf('wide') === 0 ? ' more-emote-wide' : '');
-                    text = text.replace(
-                        match,
-                        (generify.length ? '<div class="generify-container ' + generify.join(' ') + '">' : '') +
-                        '<span class="chat-emote ' + type + '" title="' + match + '" style="background-image: url(' + emote.sprite + ')">'
-                            + match
-                        + '</span>'
-                        + (generify.length ? '</div>' : '')
-                    );
-                }
-            }
-        }
-        message.find('.text').html(text);
+        // Note: we replaced regex/replace with XHR injection/CSS instead.
+        // new RegExp('\\b(' + emote.name + ')(?::([a-z:]{2,}))?(?!\\S)\\b', 'gm')
     }
 }
 
@@ -270,24 +259,21 @@ class AutocompleteFeature extends Feature {
                     for(const i in this.Vowsh.emotes.default) {
                         var emote = this.Vowsh.emotes.default[i];
                         emotes.push({
-                            name: emote,
-                            class: 'chat-emote-' + emote
+                            name: emote
                         });
                     }
                     if(this.Vowsh.user && this.Vowsh.user.subscription) {
                         for(const i in this.Vowsh.emotes.subscribers) {
                             var emote = this.Vowsh.emotes.subscribers[i];
                             emotes.push({
-                                name: emote,
-                                class: 'chat-emote-' + emote
+                                name: emote
                             });
                         }
                     }
                     for(const i in this.Vowsh.emotes.more) {
                         var emote = this.Vowsh.emotes.more[i];
                         emotes.push({
-                            name: emote.name,
-                            sprite: emote.sprite
+                            name: emote.name
                         });
                     }
 
@@ -304,25 +290,19 @@ class AutocompleteFeature extends Feature {
                             }
                         }
 
-                        var classes = 'autocomplete-emote chat-emote';
-                        if(emote.class)
-                            classes += ' ' + emote.class;
-                        else
-                            classes += ' more-emote' + (emote.name.indexOf('wide') === 0 ? ' more-emote-wide' : '');
-
+                        var classes = 'autocomplete-emote chat-emote chat-emote-' + emote.name;
                         var styles = '';
-                        if(emote.sprite)
-                            styles += ' background-image: url(' + emote.sprite + ');';
-                        if(!generify.length && invalidModifier)
-                            styles += ' opacity: 0.625;';
-
                         if(generify.length)
                             autocomplete += '<div class="generify-container ' + generify.join(' ') + '"'
                                           + (invalidModifier ? ' style="opacity: 0.625"' : '') + '>';
+                        else if(invalidModifier)
+                            styles += ' opacity: 0.625;';
+
                         autocomplete +=
                             '<span class="' + classes + '" style="' + styles + '" title="' + emote.name + '">'
                                 + emote.name
                             + '</span>';
+
                         if(generify.length)
                             autocomplete += '</div>';
                     }
@@ -330,8 +310,7 @@ class AutocompleteFeature extends Feature {
                     var bestMatches = [];
                     var otherMatches = [];
                     var find = function(emote, exact) {
-                        for(const i in emotes) {
-                            var e = emotes[i];
+                        for(const e of emotes) {
                             if(exact && e.name.toLowerCase() == emote.toLowerCase())
                                 return e;
                             if(!exact && e.name.toLowerCase().indexOf(emote.toLowerCase()) > -1) {
@@ -387,8 +366,8 @@ class SettingsFeature extends Feature {
                     '</label>' +
                 '</div>' +
                 '<div class="form-check">' +
-                    '<input id="more-emotes" class="form-check-input" type="checkbox" disabled checked> ' +
-                    '<label for="more-emotes" class="form-check-label">' +
+                    '<input id="enhanced-autocomplete" class="form-check-input" type="checkbox" disabled checked> ' +
+                    '<label for="enhanced-autocomplete" class="form-check-label">' +
                         'Enhanced autocomplete' +
                     '</label>' +
                 '</div>' +

@@ -14,8 +14,8 @@ class SettingsFeature extends Feature {
                     '</label>' +
                 '</div>' +
                 '<div class="form-check">' +
-                    '<input id="more-emotes" class="form-check-input" type="checkbox" disabled checked> ' +
-                    '<label for="more-emotes" class="form-check-label">' +
+                    '<input id="enhanced-autocomplete" class="form-check-input" type="checkbox" disabled checked> ' +
+                    '<label for="enhanced-autocomplete" class="form-check-label">' +
                         'Enhanced autocomplete' +
                     '</label>' +
                 '</div>' +

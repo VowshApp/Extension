@@ -1,29 +1,38 @@
-// TODO - get list directly from https://ryan.gq/vowsh/autocomplete for full FFZ/BTTV support
-// For now - only shared emotes have built-in autocomplete
+console.log('Downloading emotes for autocomplete...');
 
-/*
-const emotes = ["peepoWeird","KEKWait","blobDance","FeelsStrongMan","modCheck","DonoWall","peepoSnow","PepeP","YeeLaugh","YeeMods","YeeDAFUK","FeelsPeekMan","YAM","YEEHAW","PARDNER","BirBreak","vggL","peepoClap","peepoWow","monkaW","FeelsOkayMan","ItalianHands","PogU","POGSLIDE","peepoHey","peepoBye","SUGOI","pepePoint","4WeirdW","4WeirdBuff","peepoWeen","NODDERS","NOPERS","SmokeTime","KKapitalist","WineTime","GuitarTime","COOMER","Vowshgasm","widepeepoWeird","popCat","peepoHappy","AYAYAWeird","frogBLUSH","kot","TrollFace","DANKIES","PIGGIES","TANKIES","pepeJAMJAM","ratJAMJAM","Scoots","hasanSmash","monkaHmm","Okayge","Weirdge","Gladge","Madge","Prayge","peepoKiss","peepoShrek","PogChimp","tonyW","GODVOSA","teddyPepe","NA","EU","peepoBaba","FeelsDankMan","DANKHACKERMANS","VorshG","YEPPERS","forsenCD","peepoCheer","peepoRiot","WAYTOODANK","DaFeels","BLOOMER","OMEGADANCE","HOGGERS","PepeD","ppHop","ppPoof","pepeMeltdown","PepOk","PepoWant","PepoSulk","OMEGALULiguess","punDog","Hhhehhehe"];
+var emotes = null;
+$.get('https://ryan.gq/vowsh/autocomplete').done(function(e) {
+    emotes = e;
+}).fail(function() {
+    console.error('Failed to get emotes. Autocomplete will be missing some items.');
+});
+
+function injectEmotes(request) {
+    let filter = browser.webRequest.filterResponseData(request.requestId);
+    let decoder = new TextDecoder('utf-8');
+    let encoder = new TextEncoder('utf-8');
+    
+    let response = '';
+    filter.ondata = function(event) {
+        response += decoder.decode(event.data, {stream: true});
+    };
+
+    filter.onstop = function(event) {
+        let host = request.url.replace('http://', '').replace('https://', '').replace('www.', '').split('/')[0];
+        let json = JSON.parse(response);
+        console.log(request, host, emotes);
+        if(emotes != null)
+            for(const e of emotes[host])
+                json.hiddenEmotes.push(e);
+        filter.write(encoder.encode(JSON.stringify(json)));
+        filter.close();
+    }
+
+    return {};
+}
 
 browser.webRequest.onBeforeRequest.addListener(
-    function(request) {
-        let filter = browser.webRequest.filterResponseData(request.requestId);
-        let decoder = new TextDecoder('utf-8');
-        let encoder = new TextEncoder('utf-8');
-        
-        let response = '';
-        filter.ondata = function(event) {
-            response += decoder.decode(event.data, {stream: true});
-        };
-        filter.onstop = function(event) {
-            let json = JSON.parse(response);
-            for(const e of emotes)
-                json.defaultEmotes.push(e);
-            filter.write(encoder.encode(JSON.stringify(json)));
-            filter.close();
-        }
-
-        return {};
-    },
+    injectEmotes,
     {
         urls: [
             'https://*.vaush.gg/for/apiAssets/chat/emotes.json*',
@@ -35,11 +44,7 @@ browser.webRequest.onBeforeRequest.addListener(
             'https://*.surreal.gg/for/apiAssets/chat/emotes.json*',
             'https://*.conure.cc/for/apiAssets/chat/emotes.json*',
         ],
-        types: [
-            'xmlhttprequest'
-        ]
+        types: ['xmlhttprequest']
     },
-    [
-        'blocking'
-    ]
-);*/
+    ['blocking']
+);
