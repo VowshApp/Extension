@@ -292,9 +292,10 @@ class AutocompleteFeature extends Feature {
                         else if(invalidModifier)
                             styles += ' opacity: 0.625;';
 
+                        var emoteFull = emote + (modifiers !== null ? ':' + modifiers.join(':') : '');
                         autocomplete +=
-                            '<span class="' + classes + '" style="' + styles + '" title="' + emote + '">'
-                                + emote
+                            '<span class="' + classes + '" style="' + styles + '" title="' + emoteFull + '">'
+                                + emoteFull
                             + '</span>';
 
                         if(generify.length)
