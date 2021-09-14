@@ -30,11 +30,23 @@ class VowshApp {
 
     // Initializer
     init() {
-        this.features.push(new EmoteGrabFeature(this));
-        this.features.push(new MoreEmotesFeature(this));
-        this.features.push(new LinkPreviewFeature(this));
-        this.features.push(new AutocompleteFeature(this));
-        this.features.push(new SettingsFeature(this));
+        this.settings = new SettingsFeature(this);
+        this.settings.init(function(settings) {
+            // Configurable features
+            if(settings.moreEmotes)
+                Vowsh.features.push(new MoreEmotesFeature(Vowsh));
+            if(settings.enhancedAutocomplete)
+                Vowsh.features.push(new AutocompleteFeature(Vowsh));
+
+            // Standard features
+            Vowsh.features.push(new EmoteGrabFeature(this));
+            Vowsh.features.push(new LinkPreviewFeature(this));
+            
+            for(const feature of Vowsh.features) {
+                Vowsh.log(Debug, 'Initializing ' + feature.constructor.name);
+                feature.init();
+            }
+        });
 
         $.get('https://' + window.location.host + '/api/chat/me')
             .done(function(user) {
@@ -42,14 +54,9 @@ class VowshApp {
                 setInterval(Vowsh.parseChat.bind(Vowsh), 250);
             })
             .fail(function(a, b, c) {
-                console.log(a, b, c);
                 setInterval(Vowsh.parseChat.bind(Vowsh), 250);
+                Vowsh.log(Warn, 'Failed to get profile, are you not signed in?');
             });
-
-        for(const feature of this.features) {
-            Vowsh.log(Debug, 'Initializing ' + feature.constructor.name);
-            feature.init();
-        }
     }
 
     // Handle new chat messages
@@ -85,8 +92,8 @@ class VowshApp {
     // Log to console
     log(level, ...obj) {
         if(level >= this.logLevel) {
-            if(typeof(obj) == 'string')
-                obj = '[Vowsh] ' + obj;
+            if(obj.length == 1 && typeof obj[0] === 'string')
+                obj[0] = '[Vowsh] ' + obj[0];
             else
                 console.log('[Vowsh] Unknown object:');
 
@@ -95,7 +102,7 @@ class VowshApp {
             else if(level == 1)
                 console.warn(...obj);
             else if(level == 2)
-                console.error(obj);
+                console.error(...obj);
         }
     }
 }

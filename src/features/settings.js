@@ -1,5 +1,5 @@
 class SettingsFeature extends Feature {
-    init() {
+    init(done = null) {
         if($('#chat-settings-form').hasClass('vowshed'))
             return;
 
@@ -8,13 +8,13 @@ class SettingsFeature extends Feature {
             .prepend(
                 '<h4 class="text-white" style="color: orange">Vowsh Settings</h4>' +
                 '<div class="form-check">' +
-                    '<input id="more-emotes" class="form-check-input" type="checkbox" disabled checked> ' +
+                    '<input id="more-emotes" class="form-check-input" type="checkbox" checked> ' +
                     '<label for="more-emotes" class="form-check-label">' +
                         'More emotes' +
                     '</label>' +
                 '</div>' +
                 '<div class="form-check">' +
-                    '<input id="enhanced-autocomplete" class="form-check-input" type="checkbox" disabled checked> ' +
+                    '<input id="enhanced-autocomplete" class="form-check-input" type="checkbox" checked> ' +
                     '<label for="enhanced-autocomplete" class="form-check-label">' +
                         'Enhanced autocomplete' +
                     '</label>' +
@@ -22,15 +22,36 @@ class SettingsFeature extends Feature {
                 '<hr style="border-top: 1px solid #444">'
             )
             .addClass('vowshed');
-        
+
+
         var settings = this;
-        settings.reload();
-        $('#sync').changed(function() {
-            // set({sync: $(this).is(':checked')}, settings.reload);
+        
+        $('#more-emotes').change(function() {
+            browser.storage.local.set({
+                moreEmotes: $(this).is(':checked')
+            }, settings.reload);
         });
+        $('#enhanced-autocomplete').change(function() {
+            browser.storage.local.set({
+                enhancedAutocomplete: $(this).is(':checked')
+            }, settings.reload);
+        });
+
+        settings.reload(done);
     }
 
-    reload() {
-        //get({sync: true}, $('#sync').prop('checked', results.sync))
+    reload(done = null) {
+        Vowsh.log(Debug, 'Reloading settings');
+        browser.storage.local.get({
+            moreEmotes: true,
+            enhancedAutocomplete: true
+        }, function(settings) {
+            Vowsh.settings = settings;
+            Vowsh.log(Debug, Vowsh.settings);
+            $('#more-emotes').prop('checked', settings.moreEmotes);
+            $('#enhanced-autocomplete').prop('checked', settings.enhancedAutocomplete);
+            if(done != null)
+                done(settings);
+        });
     }
 }

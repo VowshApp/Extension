@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="846fc873-d1eb-49ed-a21d-d6bf0cddc101" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/background.js" beforeDir="false" afterPath="$PROJECT_DIR$/background.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/vowshapp.js" beforeDir="false" afterPath="$PROJECT_DIR$/dist/vowshapp.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/emoteGrab.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/emoteGrab.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/settings.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/settings.js" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/background.js" />
+        <option value="$PROJECT_DIR$/manifest.json" />
+        <option value="$PROJECT_DIR$/src/features/emoteGrab.js" />
+        <option value="$PROJECT_DIR$/src/features/settings.js" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectId" id="1y92GagVRRlka4uJw6TUVLmgJsa" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="846fc873-d1eb-49ed-a21d-d6bf0cddc101" name="Default Changelist" comment="" />
+      <created>1631649389563</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1631649389563</updated>
+      <workItem from="1631649402964" duration="83000" />
+      <workItem from="1631649540234" duration="2178000" />
+    </task>
+    <servers />
+  </component>
+  <component name="UnityUnitTestConfiguration" currentTestLauncher="NUnit" />
+  <component name="VcsManagerConfiguration">
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="420" y="138" width="728" height="795" key="find.popup" timestamp="1631649801838">
+      <screen x="0" y="0" width="1920" height="1032" />
+    </state>
+    <state x="420" y="138" width="728" height="795" key="find.popup/0.0.1920.1032@0.0.1920.1032" timestamp="1631649801838" />
+    <state x="405" y="257" width="672" height="678" key="search.everywhere.popup" timestamp="1631651736710">
+      <screen x="0" y="0" width="1920" height="1032" />
+    </state>
+    <state x="405" y="257" width="672" height="678" key="search.everywhere.popup/0.0.1920.1032@0.0.1920.1032" timestamp="1631651736710" />
+  </component>
+</project>

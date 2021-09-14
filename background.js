@@ -8,7 +8,7 @@ var ajax = $.get('https://ryan.gq/vowsh/autocomplete').done(function(e) {
     emotes = e;
     log('Done!');
 }).fail(function() {
-    fail('[Vowsh Worker] Failed to get emotes. Autocomplete will be missing some items.');
+    fail('Failed to get emotes. Autocomplete will be missing some items.');
 });
 
 function injectEmotes(request) {

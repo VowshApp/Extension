@@ -11,11 +11,11 @@ class EmoteGrabFeature extends Feature {
     init() {
         $('body')
             .tooltip({selector: '.chat-lines .chat-emote', container: '.chat-lines'})
-            .on('click', '.chat-lines .chat-emote', this.onClick.bind(this))
+            .on('mousedown', '.chat-lines .chat-emote', this.onMousedown.bind(this))
             
         $('#chat-input-frame')
             .tooltip({selector: '#autocomplete .chat-emote', container: '#chat-input-frame'})
-            .on('click', '#autocomplete .chat-emote', this.onClick.bind(this))
+            .on('mousedown', '#autocomplete .chat-emote', this.onMousedown.bind(this))
             .on('keydown', this.onKeydown.bind(this));
 
         $('#chat-emote-list').tooltip({selector: '.chat-emote'});
@@ -25,27 +25,34 @@ class EmoteGrabFeature extends Feature {
         message.find('.chat-emote').css('cursor', 'pointer');
     }
 
-    onClick(event) {
+    onMousedown(event) {
         var input = $('#chat-input-control');
         
-        if($(event.target).is('.autocomplete-emote')) {
-            var cursor = this.Vowsh.getCursorPosition(input);
-            var space = input.val().slice(0, cursor).lastIndexOf(' ');
-            
-            var end = input.val().slice(cursor);
-            if(space > -1) {
-                var start = input.val().slice(0, space);
-                input.val(start + ' ' + $(event.target).text() + ' ' + end);
+        if(event.which == 2) {
+            Vowsh.log(Debug, 'Copying emote to clipboard...');
+            navigator.clipboard.writeText($(event.target).text() + ' ');
+            event.preventDefault();
+        }
+        else if(event.which == 1) {
+            if($(event.target).is('.autocomplete-emote')) {
+                var cursor = this.Vowsh.getCursorPosition(input);
+                var space = input.val().slice(0, cursor).lastIndexOf(' ');
+
+                var end = input.val().slice(cursor);
+                if(space > -1) {
+                    var start = input.val().slice(0, space);
+                    input.val(start + ' ' + $(event.target).text() + ' ' + end);
+                }
+                else {
+                    input.val($(event.target).text() + ' ' + end);
+                }
+
+                $('#autocomplete').hide();
             }
             else {
-                input.val($(event.target).text() + ' ' + end);
+                var space = input.val().length && input.val().substr(input.val().length - 1) != ' ' ? ' ' : '';
+                input.val(input.val() + space + $(event.target).text() + ' ');
             }
-
-            $('#autocomplete').hide();
-        }
-        else {
-            var space = input.val().length && input.val().substr(input.val().length - 1) != ' ' ? ' ' : '';
-            input.val(input.val() + space + $(event.target).text() + ' ');
         }
 
         input.focus();
@@ -67,7 +74,7 @@ class MoreEmotesFeature extends Feature {
     }
 
     reload() {
-        $.get('https://ryan.gq/vowsh/emotes?channel=' + btoa(window.location.host)).done(function(emotes) {
+        $.get('https://ryan.gq/vowsh/emoticons?channel=' + btoa(window.location.host)).done(function(emotes) {
             Vowsh.emotes = emotes;
             
             var css = '';
@@ -112,8 +119,8 @@ class MoreEmotesFeature extends Feature {
                 total += emotes.subscribers.length;
 
             Vowsh.log(Debug, emotes.more.length + ' more emotes (' + total + ' total) are now available!');
-        }).fail(function() {
-            Vowsh.log(Fail, 'Failed to get emote list; using defaults.');
+        }).fail(function(a, b, c) {
+            Vowsh.log(Fail, 'Failed to get emote list: ' + 'https://ryan.gq/vowsh/emotes?channel=' + btoa(window.location.host));
         });
     }
 
@@ -338,7 +345,7 @@ class AutocompleteFeature extends Feature {
 }
 
 class SettingsFeature extends Feature {
-    init() {
+    init(done = null) {
         if($('#chat-settings-form').hasClass('vowshed'))
             return;
 
@@ -347,13 +354,13 @@ class SettingsFeature extends Feature {
             .prepend(
                 '<h4 class="text-white" style="color: orange">Vowsh Settings</h4>' +
                 '<div class="form-check">' +
-                    '<input id="more-emotes" class="form-check-input" type="checkbox" disabled checked> ' +
+                    '<input id="more-emotes" class="form-check-input" type="checkbox" checked> ' +
                     '<label for="more-emotes" class="form-check-label">' +
                         'More emotes' +
                     '</label>' +
                 '</div>' +
                 '<div class="form-check">' +
-                    '<input id="enhanced-autocomplete" class="form-check-input" type="checkbox" disabled checked> ' +
+                    '<input id="enhanced-autocomplete" class="form-check-input" type="checkbox" checked> ' +
                     '<label for="enhanced-autocomplete" class="form-check-label">' +
                         'Enhanced autocomplete' +
                     '</label>' +
@@ -361,16 +368,37 @@ class SettingsFeature extends Feature {
                 '<hr style="border-top: 1px solid #444">'
             )
             .addClass('vowshed');
-        
+
+
         var settings = this;
-        settings.reload();
-        $('#sync').changed(function() {
-            // set({sync: $(this).is(':checked')}, settings.reload);
+        
+        $('#more-emotes').change(function() {
+            browser.storage.local.set({
+                moreEmotes: $(this).is(':checked')
+            }, settings.reload);
         });
+        $('#enhanced-autocomplete').change(function() {
+            browser.storage.local.set({
+                enhancedAutocomplete: $(this).is(':checked')
+            }, settings.reload);
+        });
+
+        settings.reload(done);
     }
 
-    reload() {
-        //get({sync: true}, $('#sync').prop('checked', results.sync))
+    reload(done = null) {
+        Vowsh.log(Debug, 'Reloading settings');
+        browser.storage.local.get({
+            moreEmotes: true,
+            enhancedAutocomplete: true
+        }, function(settings) {
+            Vowsh.settings = settings;
+            Vowsh.log(Debug, Vowsh.settings);
+            $('#more-emotes').prop('checked', settings.moreEmotes);
+            $('#enhanced-autocomplete').prop('checked', settings.enhancedAutocomplete);
+            if(done != null)
+                done(settings);
+        });
     }
 }
 
@@ -406,11 +434,23 @@ class VowshApp {
 
     // Initializer
     init() {
-        this.features.push(new EmoteGrabFeature(this));
-        this.features.push(new MoreEmotesFeature(this));
-        this.features.push(new LinkPreviewFeature(this));
-        this.features.push(new AutocompleteFeature(this));
-        this.features.push(new SettingsFeature(this));
+        this.settings = new SettingsFeature(this);
+        this.settings.init(function(settings) {
+            // Configurable features
+            if(settings.moreEmotes)
+                Vowsh.features.push(new MoreEmotesFeature(Vowsh));
+            if(settings.enhancedAutocomplete)
+                Vowsh.features.push(new AutocompleteFeature(Vowsh));
+
+            // Standard features
+            Vowsh.features.push(new EmoteGrabFeature(this));
+            Vowsh.features.push(new LinkPreviewFeature(this));
+            
+            for(const feature of Vowsh.features) {
+                Vowsh.log(Debug, 'Initializing ' + feature.constructor.name);
+                feature.init();
+            }
+        });
 
         $.get('https://' + window.location.host + '/api/chat/me')
             .done(function(user) {
@@ -418,14 +458,9 @@ class VowshApp {
                 setInterval(Vowsh.parseChat.bind(Vowsh), 250);
             })
             .fail(function(a, b, c) {
-                console.log(a, b, c);
                 setInterval(Vowsh.parseChat.bind(Vowsh), 250);
+                Vowsh.log(Warn, 'Failed to get profile, are you not signed in?');
             });
-
-        for(const feature of this.features) {
-            Vowsh.log(Debug, 'Initializing ' + feature.constructor.name);
-            feature.init();
-        }
     }
 
     // Handle new chat messages
@@ -461,8 +496,8 @@ class VowshApp {
     // Log to console
     log(level, ...obj) {
         if(level >= this.logLevel) {
-            if(typeof(obj) == 'string')
-                obj = '[Vowsh] ' + obj;
+            if(obj.length == 1 && typeof obj[0] === 'string')
+                obj[0] = '[Vowsh] ' + obj[0];
             else
                 console.log('[Vowsh] Unknown object:');
 
@@ -471,7 +506,7 @@ class VowshApp {
             else if(level == 1)
                 console.warn(...obj);
             else if(level == 2)
-                console.error(obj);
+                console.error(...obj);
         }
     }
 }

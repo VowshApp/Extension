@@ -8,7 +8,7 @@ class MoreEmotesFeature extends Feature {
     }
 
     reload() {
-        $.get('https://ryan.gq/vowsh/emotes?channel=' + btoa(window.location.host)).done(function(emotes) {
+        $.get('https://ryan.gq/vowsh/emoticons?channel=' + btoa(window.location.host)).done(function(emotes) {
             Vowsh.emotes = emotes;
             
             var css = '';
@@ -53,8 +53,8 @@ class MoreEmotesFeature extends Feature {
                 total += emotes.subscribers.length;
 
             Vowsh.log(Debug, emotes.more.length + ' more emotes (' + total + ' total) are now available!');
-        }).fail(function() {
-            Vowsh.log(Fail, 'Failed to get emote list; using defaults.');
+        }).fail(function(a, b, c) {
+            Vowsh.log(Fail, 'Failed to get emote list: ' + 'https://ryan.gq/vowsh/emotes?channel=' + btoa(window.location.host));
         });
     }
 
