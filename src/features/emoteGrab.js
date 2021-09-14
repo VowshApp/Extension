@@ -22,7 +22,7 @@ class EmoteGrabFeature extends Feature {
         if($(event.target).is('.autocomplete-emote')) {
             var cursor = this.Vowsh.getCursorPosition(input);
             var space = input.val().slice(0, cursor).lastIndexOf(' ');
-
+            
             var end = input.val().slice(cursor);
             if(space > -1) {
                 var start = input.val().slice(0, space);

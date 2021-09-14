@@ -1,0 +1,10 @@
+{
+    "emeraldwalk.runonsave": {
+        "commands": [
+            {
+                "match": "\\.(js|css|py|json)",
+                "cmd": "python build.py --build --v2"
+            }
+        ]
+    }
+}

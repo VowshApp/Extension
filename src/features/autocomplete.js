@@ -27,33 +27,20 @@ class AutocompleteFeature extends Feature {
             if(this.input.val().length) {
                 // Autocomplete
                 var cursor = this.input.val().slice(0, this.Vowsh.getCursorPosition(this.input));
-                if(new RegExp('[A-Za-z:]+').test(cursor.substr(cursor.length - 1, 1))) {
-                    cursor = cursor.split(' ');
+                if(new RegExp('[A-Za-z: ]+').test(cursor.substr(cursor.length - 1, 1))) {
+                    cursor = cursor.trim().split(' ');
                     cursor = cursor[cursor.length - 1];
                     if(event.key != 'Escape')
                         $('#autocomplete').show();
 
                     var emotes = [];
-                    for(const i in this.Vowsh.emotes.default) {
-                        var emote = this.Vowsh.emotes.default[i];
-                        emotes.push({
-                            name: emote
-                        });
-                    }
-                    if(this.Vowsh.user && this.Vowsh.user.subscription) {
-                        for(const i in this.Vowsh.emotes.subscribers) {
-                            var emote = this.Vowsh.emotes.subscribers[i];
-                            emotes.push({
-                                name: emote
-                            });
-                        }
-                    }
-                    for(const i in this.Vowsh.emotes.more) {
-                        var emote = this.Vowsh.emotes.more[i];
-                        emotes.push({
-                            name: emote.name
-                        });
-                    }
+                    for(const e of this.Vowsh.emotes.default)
+                        emotes.push(e);
+                    if(this.Vowsh.user && this.Vowsh.user.subscription)
+                        for(const e of this.Vowsh.emotes.subscribers)
+                            emotes.push(e);
+                    for(const e of this.Vowsh.emotes.more)
+                        emotes.push(e.name);
 
                     var autocomplete = '';
                     var add = function(emote, modifiers = null) {
@@ -68,7 +55,7 @@ class AutocompleteFeature extends Feature {
                             }
                         }
 
-                        var classes = 'autocomplete-emote chat-emote chat-emote-' + emote.name;
+                        var classes = 'autocomplete-emote chat-emote chat-emote-' + emote;
                         var styles = '';
                         if(generify.length)
                             autocomplete += '<div class="generify-container ' + generify.join(' ') + '"'
@@ -77,8 +64,8 @@ class AutocompleteFeature extends Feature {
                             styles += ' opacity: 0.625;';
 
                         autocomplete +=
-                            '<span class="' + classes + '" style="' + styles + '" title="' + emote.name + '">'
-                                + emote.name
+                            '<span class="' + classes + '" style="' + styles + '" title="' + emote + '">'
+                                + emote
                             + '</span>';
 
                         if(generify.length)
@@ -89,10 +76,10 @@ class AutocompleteFeature extends Feature {
                     var otherMatches = [];
                     var find = function(emote, exact) {
                         for(const e of emotes) {
-                            if(exact && e.name.toLowerCase() == emote.toLowerCase())
+                            if(exact && e.toLowerCase() == emote.toLowerCase())
                                 return e;
-                            if(!exact && e.name.toLowerCase().indexOf(emote.toLowerCase()) > -1) {
-                                if(e.name.toLowerCase().indexOf(emote.toLowerCase()) === 0)
+                            if(!exact && e.toLowerCase().indexOf(emote.toLowerCase()) > -1) {
+                                if(e.toLowerCase().indexOf(emote.toLowerCase()) === 0)
                                     bestMatches.push(e);
                                 else
                                     otherMatches.push(e);
@@ -102,10 +89,10 @@ class AutocompleteFeature extends Feature {
                     }
 
                     find(cursor, false);
-                    for(const i in bestMatches)
-                        add(bestMatches[i])
-                    for(const i in otherMatches)
-                        add(otherMatches[i])
+                    for(const match of bestMatches)
+                        add(match);
+                    for(const match of otherMatches)
+                        add(match);
 
                     if(bestMatches.length + otherMatches.length > 0) {
                         $('#autocomplete').html(autocomplete);

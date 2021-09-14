@@ -1,10 +1,14 @@
-console.log('Downloading emotes for autocomplete...');
+const log = (...data) => console.log('[Vowsh Worker] ' + data);
+const warn = (...data) => console.warn('[Vowsh Worker] ' + data);
+const fail = (...data) => console.fail('[Vowsh Worker] ' + data);
 
+log('Downloading emotes for autocomplete...');
 var emotes = null;
-$.get('https://ryan.gq/vowsh/autocomplete').done(function(e) {
+var ajax = $.get('https://ryan.gq/vowsh/autocomplete').done(function(e) {
     emotes = e;
+    log('Done!');
 }).fail(function() {
-    console.error('Failed to get emotes. Autocomplete will be missing some items.');
+    fail('[Vowsh Worker] Failed to get emotes. Autocomplete will be missing some items.');
 });
 
 function injectEmotes(request) {
@@ -18,14 +22,21 @@ function injectEmotes(request) {
     };
 
     filter.onstop = function(event) {
+        log('Intercepting emotes.json request for autocomplete');
         let host = request.url.replace('http://', '').replace('https://', '').replace('www.', '').split('/')[0];
-        let json = JSON.parse(response);
-        console.log(request, host, emotes);
-        if(emotes != null)
+        var inject = function() {
             for(const e of emotes[host])
                 json.hiddenEmotes.push(e);
-        filter.write(encoder.encode(JSON.stringify(json)));
-        filter.close();
+
+            filter.write(encoder.encode(JSON.stringify(json)));
+            filter.close();
+        }
+
+        let json = JSON.parse(response);
+        if(emotes === null)
+            ajax.done(inject);
+        else
+            inject();
     }
 
     return {};

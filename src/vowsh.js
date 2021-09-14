@@ -83,11 +83,20 @@ class VowshApp {
     }
 
     // Log to console
-    log(level, object) {
-        if(level < this.logLevel)
-            return;
-        var logger = level == 0 ? console.log : level == 1 ? console.warn : console.error;
-        logger('[Vowsh] ' + object);
+    log(level, ...obj) {
+        if(level >= this.logLevel) {
+            if(typeof(obj) == 'string')
+                obj = '[Vowsh] ' + obj;
+            else
+                console.log('[Vowsh] Unknown object:');
+
+            if(level == 0)
+                console.log(...obj);
+            else if(level == 1)
+                console.warn(...obj);
+            else if(level == 2)
+                console.error(obj);
+        }
     }
 }
 
