@@ -30,6 +30,11 @@ Vowsh is currently incompatible with Destiny.gg -- let me know if you want that 
 
 ---
 
+### Optional "better readability" mode
+![Optional "better readability" mode](https://ryan.gq/vowsh/screenshots/4.png)
+
+---
+
 # Get Vowsh
 ### Install from official stores (recommended)
 * Mozilla store link: https://addons.mozilla.org/en-US/firefox/addon/vowsh

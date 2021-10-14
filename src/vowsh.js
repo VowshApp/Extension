@@ -2,6 +2,8 @@ const Debug = 0, Warn = 1, Fail = 2;
 
 class VowshApp {
     constructor() {
+        this.ready = false;
+        this.queue = [];
         this.logLevel = Debug;
         this.features = [];
         this.emoteModifiers = {
@@ -55,7 +57,6 @@ class VowshApp {
             })
             .fail(function(a, b, c) {
                 setInterval(Vowsh.parseChat.bind(Vowsh), 250);
-                Vowsh.log(Warn, 'Failed to get profile, are you not signed in?');
             });
     }
 
@@ -65,11 +66,27 @@ class VowshApp {
         for(var i = 0; i < lines.length; i++) {
             var line = lines.eq(i);
             line.addClass('vowshed');
+            
+            // Initialize CSS after messages have loaded.
+            if(!this.ready) {
+                Vowsh.log(Debug, 'Chat has finished loading, applying settings...');
+                for(const func of this.queue)
+                    func();
+                this.queue = [];
+                this.ready = true;
+            }
 
             for(const feature of this.features) {
                 feature.onMessage(line);
             }
         }
+    }
+
+    onReady(func) {
+        if(this.ready)
+            func();
+        else
+            this.queue.push(func);
     }
 
     // Get the text being typed for autocomplete
@@ -108,4 +125,6 @@ class VowshApp {
 }
 
 const Vowsh = new VowshApp();
-Vowsh.init();
+$(document).ready(function() {
+    Vowsh.init();
+});

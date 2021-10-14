@@ -40,3 +40,21 @@
     cursor: pointer;
 }
 
+.chat-lines.readable .msg-chat {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+    margin-bottom: 0px !important;
+}
+
+.chat-lines.readable .msg-chat:not(:last-child) {
+    border-bottom: 1px solid #454545;
+}
+
+.chat-lines.readable .msg-chat:nth-child(even):not(.msg-highlist):not(.msg-own) {
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.chat-emote {
+    margin-top: -24px !important;
+}
+

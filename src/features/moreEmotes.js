@@ -8,6 +8,8 @@ class MoreEmotesFeature extends Feature {
     }
 
     reload() {
+        var moreEmotes = this;
+        
         $.get('https://ryan.gq/vowsh/emoticons?channel=' + btoa(window.location.host)).done(function(emotes) {
             Vowsh.emotes = emotes;
             
@@ -32,20 +34,20 @@ class MoreEmotesFeature extends Feature {
             $('body').prepend('<style>' + css + '</style>');
 
             var emoteList = $('#chat-emote-list .content');
-            var emotes = '';
+            var html = '';
             if(!emoteList.is('.vowshed')) {
-                emotes += '<div style="font-weight: 900">Vowsh Emotes</div>';
-                emotes += '<div id="vowsh-emotes" class="emote-group">';
+                html += '<div style="font-weight: 900">Vowsh Emotes</div>';
+                html += '<div id="vowsh-emotes" class="emote-group">';
                 for(const emote of Vowsh.emotes.more) {
-                    emotes +=
+                    html +=
                         '<div class="emote" style="padding: 0.1em">'
                             + '<span class="chat-emote chat-emote-' + emote.name + '" title="' + emote.name + '">'
                                 + emote.name
                             + '</span>'
                         + '</div>';
                 }
-                emotes += '</div>';
-                emoteList.append(emotes).addClass('vowshed');
+                html += '</div>';
+                emoteList.append(html).addClass('vowshed');
             }
 
             var total = emotes.default.length + emotes.more.length;

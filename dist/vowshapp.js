@@ -74,6 +74,8 @@ class MoreEmotesFeature extends Feature {
     }
 
     reload() {
+        var moreEmotes = this;
+        
         $.get('https://ryan.gq/vowsh/emoticons?channel=' + btoa(window.location.host)).done(function(emotes) {
             Vowsh.emotes = emotes;
             
@@ -98,20 +100,20 @@ class MoreEmotesFeature extends Feature {
             $('body').prepend('<style>' + css + '</style>');
 
             var emoteList = $('#chat-emote-list .content');
-            var emotes = '';
+            var html = '';
             if(!emoteList.is('.vowshed')) {
-                emotes += '<div style="font-weight: 900">Vowsh Emotes</div>';
-                emotes += '<div id="vowsh-emotes" class="emote-group">';
+                html += '<div style="font-weight: 900">Vowsh Emotes</div>';
+                html += '<div id="vowsh-emotes" class="emote-group">';
                 for(const emote of Vowsh.emotes.more) {
-                    emotes +=
+                    html +=
                         '<div class="emote" style="padding: 0.1em">'
                             + '<span class="chat-emote chat-emote-' + emote.name + '" title="' + emote.name + '">'
                                 + emote.name
                             + '</span>'
                         + '</div>';
                 }
-                emotes += '</div>';
-                emoteList.append(emotes).addClass('vowshed');
+                html += '</div>';
+                emoteList.append(html).addClass('vowshed');
             }
 
             var total = emotes.default.length + emotes.more.length;
@@ -346,14 +348,22 @@ class AutocompleteFeature extends Feature {
 }
 
 class SettingsFeature extends Feature {
+    constructor(vowsh) {
+        super(vowsh);
+        this.storage = typeof browser !== 'undefined' ? browser.storage : chrome.storage;
+    }
+
     init(done = null) {
         if($('#chat-settings-form').hasClass('vowshed'))
             return;
 
+        var settings = this;
+
         $('#chat-settings-form > h4').attr('style', 'color: #999')
         $('#chat-settings-form')
             .prepend(
-                '<h4 class="text-white" style="color: orange">Vowsh Settings</h4>' +
+                '<h4 class="text-white" style="color: orange; margin-bottom: 0px">Vowsh Settings</h4>' +
+                '<small class="text-muted my-2" style="display: block; margin: 0px 0px 10px 17px">Some options may require a refresh to take effect.</small>' +
                 '<div class="form-check">' +
                     '<input id="more-emotes" class="form-check-input" type="checkbox" checked> ' +
                     '<label for="more-emotes" class="form-check-label">' +
@@ -366,22 +376,30 @@ class SettingsFeature extends Feature {
                         'Enhanced autocomplete' +
                     '</label>' +
                 '</div>' +
+                '<div class="form-check">' +
+                    '<input id="readable-chat" class="form-check-input" type="checkbox" checked> ' +
+                    '<label for="readable-chat" class="form-check-label">' +
+                        'Separate chat lines' +
+                    '</label>' +
+                '</div>' +
                 '<hr style="border-top: 1px solid #444">'
             )
             .addClass('vowshed');
 
-
-        var settings = this;
-        
         $('#more-emotes').change(function() {
-            browser.storage.local.set({
+            settings.storage.local.set({
                 moreEmotes: $(this).is(':checked')
-            }, settings.reload);
+            }, settings.reload.bind(settings));
         });
         $('#enhanced-autocomplete').change(function() {
-            browser.storage.local.set({
+            settings.storage.local.set({
                 enhancedAutocomplete: $(this).is(':checked')
-            }, settings.reload);
+            }, settings.reload.bind(settings));
+        });
+        $('#readable-chat').change(function() {
+            settings.storage.local.set({
+                readableChat: $(this).is(':checked')
+            }, settings.reload.bind(settings));
         });
 
         settings.reload(done);
@@ -389,14 +407,23 @@ class SettingsFeature extends Feature {
 
     reload(done = null) {
         Vowsh.log(Debug, 'Reloading settings');
-        browser.storage.local.get({
+        this.storage.local.get({
             moreEmotes: true,
-            enhancedAutocomplete: true
+            enhancedAutocomplete: true,
+            readableChat: true
         }, function(settings) {
             Vowsh.settings = settings;
             Vowsh.log(Debug, Vowsh.settings);
+            
             $('#more-emotes').prop('checked', settings.moreEmotes);
             $('#enhanced-autocomplete').prop('checked', settings.enhancedAutocomplete);
+            $('#readable-chat').prop('checked', settings.readableChat);
+
+            // Apply other settings after chat has loaded.
+            Vowsh.onReady(function() {
+                $('.chat-lines').toggleClass('readable', Vowsh.settings.readableChat);
+            });
+            
             if(done != null)
                 done(settings);
         });
@@ -407,6 +434,8 @@ const Debug = 0, Warn = 1, Fail = 2;
 
 class VowshApp {
     constructor() {
+        this.ready = false;
+        this.queue = [];
         this.logLevel = Debug;
         this.features = [];
         this.emoteModifiers = {
@@ -460,7 +489,6 @@ class VowshApp {
             })
             .fail(function(a, b, c) {
                 setInterval(Vowsh.parseChat.bind(Vowsh), 250);
-                Vowsh.log(Warn, 'Failed to get profile, are you not signed in?');
             });
     }
 
@@ -470,11 +498,27 @@ class VowshApp {
         for(var i = 0; i < lines.length; i++) {
             var line = lines.eq(i);
             line.addClass('vowshed');
+            
+            // Initialize CSS after messages have loaded.
+            if(!this.ready) {
+                Vowsh.log(Debug, 'Chat has finished loading, applying settings...');
+                for(const func of this.queue)
+                    func();
+                this.queue = [];
+                this.ready = true;
+            }
 
             for(const feature of this.features) {
                 feature.onMessage(line);
             }
         }
+    }
+
+    onReady(func) {
+        if(this.ready)
+            func();
+        else
+            this.queue.push(func);
     }
 
     // Get the text being typed for autocomplete
@@ -513,5 +557,7 @@ class VowshApp {
 }
 
 const Vowsh = new VowshApp();
-Vowsh.init();
+$(document).ready(function() {
+    Vowsh.init();
+});
 

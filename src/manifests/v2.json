@@ -2,7 +2,10 @@
     "manifest_version": 2,
     "name": "Vowsh",
     "description": "Make chat great again.",
-    "version": "0.3.3",
+    "version": "0.4.1",
+    "icons": {
+      "512": "icon.png"
+    },
     "content_scripts": [
       {
         "matches": [
@@ -17,21 +20,20 @@
         ],
         "css": [
           "lib/bootstrap-3.4.1.min.css",
-          "dist/vowshapp.css"
+          "vowshapp.css"
         ],
         "js": [
           "lib/jquery-3.6.0.min.js",
           "lib/bootstrap-3.4.1.min.js",
           "lib/popper-1.14.3.min.js",
-          "dist/vowshapp.js"
+          "xhook.js",
+          "vowshapp.js"
         ],
+        "run_at": "document_start",
         "all_frames": true
       }
     ],
     "permissions": [
-      "clipboardWrite",
-      "webRequest",
-      "webRequestBlocking",
       "storage",
       "https://*.ryan.gq/*",
       "https://*.vaush.gg/*",
@@ -41,13 +43,6 @@
       "https://*.conure.cc/*",
       "https://*.xanderhal.com/*",
       "https://*.rosewrist.com/*"
-    ],
-    "background": {
-      "scripts": [
-        "lib/jquery-3.6.0.min.js",
-        "background.js"
-      ],
-      "persistent": true
-    }
+    ]
   }
   
