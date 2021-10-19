@@ -5,7 +5,9 @@ class VowshApp {
         this.ready = false;
         this.queue = [];
         this.logLevel = Debug;
+        this.browser = typeof browser !== 'undefined' ? browser : chrome;
         this.features = [];
+        this.messageCount = 0;
         this.emoteModifiers = {
             asex: { generify: 'asex flag' },
             bi: { generify: 'bi flag' },
@@ -39,6 +41,10 @@ class VowshApp {
                 Vowsh.features.push(new MoreEmotesFeature(Vowsh));
             if(settings.enhancedAutocomplete)
                 Vowsh.features.push(new AutocompleteFeature(Vowsh));
+            if(settings.pronouns)
+                Vowsh.features.push(new PronounsFeature(Vowsh));
+            if(settings.notifications)
+                Vowsh.features.push(new NotificationsFeature(this));
 
             // Standard features
             Vowsh.features.push(new EmoteGrabFeature(this));
@@ -53,10 +59,10 @@ class VowshApp {
         $.get('https://' + window.location.host + '/api/chat/me')
             .done(function(user) {
                 Vowsh.user = user;
-                setInterval(Vowsh.parseChat.bind(Vowsh), 250);
+                setInterval(Vowsh.parseChat.bind(Vowsh), 10);
             })
             .fail(function(a, b, c) {
-                setInterval(Vowsh.parseChat.bind(Vowsh), 250);
+                setInterval(Vowsh.parseChat.bind(Vowsh), 10);
             });
     }
 
@@ -65,8 +71,9 @@ class VowshApp {
         var lines = $('.msg-chat:not(.vowshed)');
         for(var i = 0; i < lines.length; i++) {
             var line = lines.eq(i);
-            line.addClass('vowshed');
-            
+            line.addClass('vowshed').toggleClass('msg-dark', (this.messageCount % 2) == 0);
+            this.messageCount++;
+
             // Initialize CSS after messages have loaded.
             if(!this.ready) {
                 Vowsh.log(Debug, 'Chat has finished loading, applying settings...');
@@ -112,7 +119,7 @@ class VowshApp {
             if(obj.length == 1 && typeof obj[0] === 'string')
                 obj[0] = '[Vowsh] ' + obj[0];
             else
-                console.log('[Vowsh] Unknown object:');
+                console.log('[Vowsh] ' + obj.length + ' object(s) logged:');
 
             if(level == 0)
                 console.log(...obj);

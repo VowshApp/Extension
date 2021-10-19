@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Vowsh",
   "description": "Make chat great again.",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "icons": {
     "512": "icon.png"
   },

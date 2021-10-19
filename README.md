@@ -35,6 +35,16 @@ Vowsh is currently incompatible with Destiny.gg -- let me know if you want that 
 
 ---
 
+### Cleaner pronouns
+![Cleaner pronouns](https://ryan.gq/vowsh/screenshots/5.png)
+
+---
+
+### Notifications when mentioned
+![Notifications when mentioned](https://ryan.gq/vowsh/screenshots/6.png)
+
+---
+
 # Get Vowsh
 ### Install from official stores (recommended)
 * Mozilla store link: https://addons.mozilla.org/en-US/firefox/addon/vowsh

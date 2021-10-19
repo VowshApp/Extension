@@ -26,7 +26,7 @@ class EmoteGrabFeature extends Feature {
         }
         else if(event.which == 1) {
             if($(event.target).is('.autocomplete-emote')) {
-                var cursor = this.Vowsh.getCursorPosition(input);
+                var cursor = Vowsh.getCursorPosition(input);
                 var space = input.val().slice(0, cursor).lastIndexOf(' ');
 
                 var end = input.val().slice(cursor);
@@ -46,7 +46,9 @@ class EmoteGrabFeature extends Feature {
             }
         }
 
-        input.focus();
+        setTimeout(function() {
+            input.focus();
+        }, 1);
     }
 
     onKeydown(event) {

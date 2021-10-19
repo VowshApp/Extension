@@ -35,7 +35,7 @@ class EmoteGrabFeature extends Feature {
         }
         else if(event.which == 1) {
             if($(event.target).is('.autocomplete-emote')) {
-                var cursor = this.Vowsh.getCursorPosition(input);
+                var cursor = Vowsh.getCursorPosition(input);
                 var space = input.val().slice(0, cursor).lastIndexOf(' ');
 
                 var end = input.val().slice(cursor);
@@ -55,7 +55,9 @@ class EmoteGrabFeature extends Feature {
             }
         }
 
-        input.focus();
+        setTimeout(function() {
+            input.focus();
+        }, 1);
     }
 
     onKeydown(event) {
@@ -74,8 +76,6 @@ class MoreEmotesFeature extends Feature {
     }
 
     reload() {
-        var moreEmotes = this;
-        
         $.get('https://ryan.gq/vowsh/emoticons?channel=' + btoa(window.location.host)).done(function(emotes) {
             Vowsh.emotes = emotes;
             
@@ -117,18 +117,13 @@ class MoreEmotesFeature extends Feature {
             }
 
             var total = emotes.default.length + emotes.more.length;
-            if(moreEmotes.subscription != null)
+            if(Vowsh.user && Vowsh.user.subscription != null)
                 total += emotes.subscribers.length;
 
             Vowsh.log(Debug, emotes.more.length + ' more emotes (' + total + ' total) are now available!');
         }).fail(function(a, b, c) {
             Vowsh.log(Fail, 'Failed to get emote list: ' + 'https://ryan.gq/vowsh/emotes?channel=' + btoa(window.location.host));
         });
-    }
-
-    onMessage(message) {
-        // Note: we replaced regex/replace with XHR injection/CSS instead.
-        // new RegExp('\\b(' + emote.name + ')(?::([a-z:]{2,}))?(?!\\S)\\b', 'gm')
     }
 }
 
@@ -347,17 +342,70 @@ class AutocompleteFeature extends Feature {
     }
 }
 
+class PronounsFeature extends Feature {
+    constructor(vowsh) {
+        super(vowsh);
+        this.pronouns = null;
+    }
+
+    init() {
+        var self = this;
+        Vowsh.log(Debug, 'Downloading pronouns from https://ryan.gq/vowsh/pronouns?channel=' + btoa(window.location.host) + ' ...');
+        $.get('https://ryan.gq/vowsh/pronouns?channel=' + btoa(window.location.host)).done(function(pronouns) {
+            self.pronouns = pronouns;
+            Vowsh.log(Debug, pronouns);
+        }).fail(function(a, b, c) {
+            Vowsh.log(Warn, a, b, c);
+        });
+    }
+
+    onMessage(message) {
+        if(this.pronouns == null)
+            return;
+        
+        var username = message.data('username');
+        for(const user of this.pronouns) {
+            if(user.name.toLowerCase() == username.toLowerCase()) {
+                message.append('<span class="pronouns">' + user.pronouns + '</span>');
+            }
+        }
+    }
+}
+
+class NotificationsFeature extends Feature {
+    init() {
+        Notification.requestPermission().then(function(result) {
+            Vowsh.onReady(function() {
+                if(result !== 'granted') {
+                    $('.chat-lines').append('<div class="msg-chat msg-info"><span class="text" style="color: crimson">Notifications are enabled in Vowsh settings, but you haven\'t granted permission yet.</span></div>');
+                }
+            });
+        });
+    }
+
+    onMessage(message) {
+        if(message.is('.msg-highlight')) {
+            var mention = new Notification(message.data('username') + ' mentioned you');
+            mention.onclick = function() { window.focus(); mention.close(); };
+
+            document.addEventListener('visibilitychange', function() {
+                if(document.visibilityState == 'visible') {
+                    mention.close();
+                }
+            });
+        }
+    }
+}
+
 class SettingsFeature extends Feature {
     constructor(vowsh) {
         super(vowsh);
-        this.storage = typeof browser !== 'undefined' ? browser.storage : chrome.storage;
+        this.storage = Vowsh.browser.storage;
     }
 
     init(done = null) {
         if($('#chat-settings-form').hasClass('vowshed'))
             return;
-
-        var settings = this;
 
         $('#chat-settings-form > h4').attr('style', 'color: #999')
         $('#chat-settings-form')
@@ -382,27 +430,51 @@ class SettingsFeature extends Feature {
                         'Separate chat lines' +
                     '</label>' +
                 '</div>' +
+                '<div class="form-check">' +
+                    '<input id="pronouns" class="form-check-input" type="checkbox" checked> ' +
+                    '<label for="pronouns" class="form-check-label">' +
+                        'Display pronouns' +
+                    '</label>' +
+                '</div>' +
+                '<div class="form-check">' +
+                    '<input id="notifications" class="form-check-input" type="checkbox" checked> ' +
+                    '<label for="notifications" class="form-check-label">' +
+                        'Notify when mentioned' +
+                    '</label>' +
+                '</div>' +
                 '<hr style="border-top: 1px solid #444">'
             )
             .addClass('vowshed');
 
+        var self = this;
+            
         $('#more-emotes').change(function() {
-            settings.storage.local.set({
+            self.storage.local.set({
                 moreEmotes: $(this).is(':checked')
-            }, settings.reload.bind(settings));
+            }, self.reload.bind(self));
         });
         $('#enhanced-autocomplete').change(function() {
-            settings.storage.local.set({
+            self.storage.local.set({
                 enhancedAutocomplete: $(this).is(':checked')
-            }, settings.reload.bind(settings));
+            }, self.reload.bind(self));
         });
         $('#readable-chat').change(function() {
-            settings.storage.local.set({
+            self.storage.local.set({
                 readableChat: $(this).is(':checked')
-            }, settings.reload.bind(settings));
+            }, self.reload.bind(self));
         });
+        $('#pronouns').change(function() {
+            self.storage.local.set({
+                pronouns: $(this).is(':checked')
+            }, self.reload.bind(self));
+        });
+        $('#notifications').change(function() {
+            self.storage.local.set({
+                notifications: $(this).is(':checked')
+            }, self.reload.bind(self));
+        })
 
-        settings.reload(done);
+        self.reload(done);
     }
 
     reload(done = null) {
@@ -410,7 +482,9 @@ class SettingsFeature extends Feature {
         this.storage.local.get({
             moreEmotes: true,
             enhancedAutocomplete: true,
-            readableChat: true
+            readableChat: true,
+            pronouns: true,
+            notifications: true
         }, function(settings) {
             Vowsh.settings = settings;
             Vowsh.log(Debug, Vowsh.settings);
@@ -418,10 +492,14 @@ class SettingsFeature extends Feature {
             $('#more-emotes').prop('checked', settings.moreEmotes);
             $('#enhanced-autocomplete').prop('checked', settings.enhancedAutocomplete);
             $('#readable-chat').prop('checked', settings.readableChat);
+            $('#pronouns').prop('checked', settings.pronouns);
+            $('#notifications').prop('checked', settings.notifications);
 
             // Apply other settings after chat has loaded.
             Vowsh.onReady(function() {
-                $('.chat-lines').toggleClass('readable', Vowsh.settings.readableChat);
+                $('.chat-lines')
+                    .toggleClass('readable', Vowsh.settings.readableChat)
+                    .toggleClass('with-pronouns', Vowsh.settings.pronouns);
             });
             
             if(done != null)
@@ -437,7 +515,9 @@ class VowshApp {
         this.ready = false;
         this.queue = [];
         this.logLevel = Debug;
+        this.browser = typeof browser !== 'undefined' ? browser : chrome;
         this.features = [];
+        this.messageCount = 0;
         this.emoteModifiers = {
             asex: { generify: 'asex flag' },
             bi: { generify: 'bi flag' },
@@ -471,6 +551,10 @@ class VowshApp {
                 Vowsh.features.push(new MoreEmotesFeature(Vowsh));
             if(settings.enhancedAutocomplete)
                 Vowsh.features.push(new AutocompleteFeature(Vowsh));
+            if(settings.pronouns)
+                Vowsh.features.push(new PronounsFeature(Vowsh));
+            if(settings.notifications)
+                Vowsh.features.push(new NotificationsFeature(this));
 
             // Standard features
             Vowsh.features.push(new EmoteGrabFeature(this));
@@ -485,10 +569,10 @@ class VowshApp {
         $.get('https://' + window.location.host + '/api/chat/me')
             .done(function(user) {
                 Vowsh.user = user;
-                setInterval(Vowsh.parseChat.bind(Vowsh), 250);
+                setInterval(Vowsh.parseChat.bind(Vowsh), 10);
             })
             .fail(function(a, b, c) {
-                setInterval(Vowsh.parseChat.bind(Vowsh), 250);
+                setInterval(Vowsh.parseChat.bind(Vowsh), 10);
             });
     }
 
@@ -497,8 +581,9 @@ class VowshApp {
         var lines = $('.msg-chat:not(.vowshed)');
         for(var i = 0; i < lines.length; i++) {
             var line = lines.eq(i);
-            line.addClass('vowshed');
-            
+            line.addClass('vowshed').toggleClass('msg-dark', (this.messageCount % 2) == 0);
+            this.messageCount++;
+
             // Initialize CSS after messages have loaded.
             if(!this.ready) {
                 Vowsh.log(Debug, 'Chat has finished loading, applying settings...');
@@ -544,7 +629,7 @@ class VowshApp {
             if(obj.length == 1 && typeof obj[0] === 'string')
                 obj[0] = '[Vowsh] ' + obj[0];
             else
-                console.log('[Vowsh] Unknown object:');
+                console.log('[Vowsh] ' + obj.length + ' object(s) logged:');
 
             if(level == 0)
                 console.log(...obj);

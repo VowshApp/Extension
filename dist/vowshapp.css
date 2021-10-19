@@ -50,11 +50,23 @@
     border-bottom: 1px solid #454545;
 }
 
-.chat-lines.readable .msg-chat:nth-child(even):not(.msg-highlist):not(.msg-own) {
+.chat-lines.readable .msg-chat:not(.msg-emote):not(.msg-highlight):not(.msg-own).msg-dark {
     background: rgba(0, 0, 0, 0.15);
+}
+
+.chat-lines.with-pronouns .text {
+    padding-right: 65px;
+}
+
+.pronouns {
+    position: absolute;
+    right: 10px;
+    font-size: 12px;
+    color: #aaa;
 }
 
 .chat-emote {
     margin-top: -24px !important;
 }
+
 

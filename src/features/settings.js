@@ -1,14 +1,12 @@
 class SettingsFeature extends Feature {
     constructor(vowsh) {
         super(vowsh);
-        this.storage = typeof browser !== 'undefined' ? browser.storage : chrome.storage;
+        this.storage = Vowsh.browser.storage;
     }
 
     init(done = null) {
         if($('#chat-settings-form').hasClass('vowshed'))
             return;
-
-        var settings = this;
 
         $('#chat-settings-form > h4').attr('style', 'color: #999')
         $('#chat-settings-form')
@@ -33,27 +31,51 @@ class SettingsFeature extends Feature {
                         'Separate chat lines' +
                     '</label>' +
                 '</div>' +
+                '<div class="form-check">' +
+                    '<input id="pronouns" class="form-check-input" type="checkbox" checked> ' +
+                    '<label for="pronouns" class="form-check-label">' +
+                        'Display pronouns' +
+                    '</label>' +
+                '</div>' +
+                '<div class="form-check">' +
+                    '<input id="notifications" class="form-check-input" type="checkbox" checked> ' +
+                    '<label for="notifications" class="form-check-label">' +
+                        'Notify when mentioned' +
+                    '</label>' +
+                '</div>' +
                 '<hr style="border-top: 1px solid #444">'
             )
             .addClass('vowshed');
 
+        var self = this;
+            
         $('#more-emotes').change(function() {
-            settings.storage.local.set({
+            self.storage.local.set({
                 moreEmotes: $(this).is(':checked')
-            }, settings.reload.bind(settings));
+            }, self.reload.bind(self));
         });
         $('#enhanced-autocomplete').change(function() {
-            settings.storage.local.set({
+            self.storage.local.set({
                 enhancedAutocomplete: $(this).is(':checked')
-            }, settings.reload.bind(settings));
+            }, self.reload.bind(self));
         });
         $('#readable-chat').change(function() {
-            settings.storage.local.set({
+            self.storage.local.set({
                 readableChat: $(this).is(':checked')
-            }, settings.reload.bind(settings));
+            }, self.reload.bind(self));
         });
+        $('#pronouns').change(function() {
+            self.storage.local.set({
+                pronouns: $(this).is(':checked')
+            }, self.reload.bind(self));
+        });
+        $('#notifications').change(function() {
+            self.storage.local.set({
+                notifications: $(this).is(':checked')
+            }, self.reload.bind(self));
+        })
 
-        settings.reload(done);
+        self.reload(done);
     }
 
     reload(done = null) {
@@ -61,7 +83,9 @@ class SettingsFeature extends Feature {
         this.storage.local.get({
             moreEmotes: true,
             enhancedAutocomplete: true,
-            readableChat: true
+            readableChat: true,
+            pronouns: true,
+            notifications: true
         }, function(settings) {
             Vowsh.settings = settings;
             Vowsh.log(Debug, Vowsh.settings);
@@ -69,10 +93,14 @@ class SettingsFeature extends Feature {
             $('#more-emotes').prop('checked', settings.moreEmotes);
             $('#enhanced-autocomplete').prop('checked', settings.enhancedAutocomplete);
             $('#readable-chat').prop('checked', settings.readableChat);
+            $('#pronouns').prop('checked', settings.pronouns);
+            $('#notifications').prop('checked', settings.notifications);
 
             // Apply other settings after chat has loaded.
             Vowsh.onReady(function() {
-                $('.chat-lines').toggleClass('readable', Vowsh.settings.readableChat);
+                $('.chat-lines')
+                    .toggleClass('readable', Vowsh.settings.readableChat)
+                    .toggleClass('with-pronouns', Vowsh.settings.pronouns);
             });
             
             if(done != null)

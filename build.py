@@ -12,6 +12,8 @@ inputFiles = {
         'features/moreEmotes.js',
         'features/linkPreview.js',
         'features/autocomplete.js',
+        'features/pronouns.js',
+        'features/notifications.js',
         'features/settings.js',
         'vowsh.js'
     ],
@@ -37,7 +39,12 @@ def build_lib():
     if not os.path.exists('dist/lib'):
         os.makedirs('dist/lib')
 
-    include = ['bootstrap-3.4.1.min.css', 'bootstrap-3.4.1.min.js', 'jquery-3.6.0.min.js', 'popper-1.14.3.min.js']
+    include = [
+        'bootstrap-3.4.1.min.css',
+        'bootstrap-3.4.1.min.js',
+        'jquery-3.6.0.min.js',
+        'popper-1.14.3.min.js'
+    ]
     for lib in include:
         shutil.copy('lib/' + lib, 'dist/lib/' + lib)
     
