@@ -384,7 +384,7 @@ class NotificationsFeature extends Feature {
     }
 
     onMessage(message) {
-        if(message.is('.msg-highlight')) {
+        if(message.is('.msg-highlight') && document.visibilityState != 'visible') {
             var mention = new Notification(message.data('username') + ' mentioned you');
             mention.onclick = function() { window.focus(); mention.close(); };
 
