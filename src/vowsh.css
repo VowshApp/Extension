@@ -68,3 +68,7 @@
 .chat-emote {
     margin-top: -24px !important;
 }
+
+.form-control::placeholder {
+    color: #ccc;
+}

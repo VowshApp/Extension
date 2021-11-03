@@ -43,6 +43,12 @@ class SettingsFeature extends Feature {
                         'Notify when mentioned' +
                     '</label>' +
                 '</div>' +
+                '<div>' +
+                    '<label for="macros" class="form-check-label">' +
+                        'Macros (one per line)' +
+                    '</label>' +
+                    '<textarea id="macros" class="form-control" placeholder="Alt + 1\nAlt + 2\nAlt + 3\n..."></textarea> ' +
+                '</div>' +
                 '<hr style="border-top: 1px solid #444">'
             )
             .addClass('vowshed');
@@ -73,7 +79,12 @@ class SettingsFeature extends Feature {
             self.storage.local.set({
                 notifications: $(this).is(':checked')
             }, self.reload.bind(self));
-        })
+        });
+        $('#macros').change(function() {
+            self.storage.local.set({
+                macros: $(this).val()
+            }, self.reload.bind(self));
+        });
 
         self.reload(done);
     }
@@ -85,7 +96,8 @@ class SettingsFeature extends Feature {
             enhancedAutocomplete: true,
             readableChat: true,
             pronouns: true,
-            notifications: true
+            notifications: true,
+            macros: ''
         }, function(settings) {
             Vowsh.settings = settings;
             Vowsh.log(Debug, Vowsh.settings);
@@ -95,6 +107,7 @@ class SettingsFeature extends Feature {
             $('#readable-chat').prop('checked', settings.readableChat);
             $('#pronouns').prop('checked', settings.pronouns);
             $('#notifications').prop('checked', settings.notifications);
+            $('#macros').val(settings.macros);
 
             // Apply other settings after chat has loaded.
             Vowsh.onReady(function() {

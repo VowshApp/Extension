@@ -8,12 +8,13 @@ inputDirectory = 'src/'
 inputFiles = {
     'js': [
         'feature.js',
-        'features/emoteGrab.js',
-        'features/moreEmotes.js',
-        'features/linkPreview.js',
         'features/autocomplete.js',
-        'features/pronouns.js',
+        'features/emoteGrab.js',
+        'features/linkPreview.js',
+        'features/macros.js',
+        'features/moreEmotes.js',
         'features/notifications.js',
+        'features/pronouns.js',
         'features/settings.js',
         'vowsh.js'
     ],

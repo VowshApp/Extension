@@ -25,30 +25,11 @@ class EmoteGrabFeature extends Feature {
             event.preventDefault();
         }
         else if(event.which == 1) {
-            if($(event.target).is('.autocomplete-emote')) {
-                var cursor = Vowsh.getCursorPosition(input);
-                var space = input.val().slice(0, cursor).lastIndexOf(' ');
-
-                var end = input.val().slice(cursor);
-                if(space > -1) {
-                    var start = input.val().slice(0, space);
-                    input.val(start + ' ' + $(event.target).text() + ' ' + end);
-                }
-                else {
-                    input.val($(event.target).text() + ' ' + end);
-                }
-
-                $('#autocomplete').hide();
-            }
-            else {
-                var space = input.val().length && input.val().substr(input.val().length - 1) != ' ' ? ' ' : '';
-                input.val(input.val() + space + $(event.target).text() + ' ');
-            }
+            var autocomplete = $(event.target).is('.autocomplete-emote');
+            Vowsh.insertEmote(input, $(event.target).text(), autocomplete);
+            $('#autocomplete').hide();
         }
-
-        setTimeout(function() {
-            input.focus();
-        }, 1);
+        setTimeout(function() { input.focus(); }, 1);
     }
 
     onKeydown(event) {

@@ -7,223 +7,6 @@ class Feature {
     onMessage(message) {}
 }
 
-class EmoteGrabFeature extends Feature {
-    init() {
-        $('body')
-            .tooltip({selector: '.chat-lines .chat-emote', container: '.chat-lines'})
-            .on('mousedown', '.chat-lines .chat-emote', this.onMousedown.bind(this))
-            
-        $('#chat-input-frame')
-            .tooltip({selector: '#autocomplete .chat-emote', container: '#chat-input-frame'})
-            .on('mousedown', '#autocomplete .chat-emote', this.onMousedown.bind(this))
-            .on('keydown', this.onKeydown.bind(this));
-
-        $('#chat-emote-list').tooltip({selector: '.chat-emote'});
-    }
-
-    onMessage(message) {
-        message.find('.chat-emote').css('cursor', 'pointer');
-    }
-
-    onMousedown(event) {
-        var input = $('#chat-input-control');
-        
-        if(event.which == 2) {
-            Vowsh.log(Debug, 'Copying emote to clipboard...');
-            navigator.clipboard.writeText($(event.target).text() + ' ');
-            event.preventDefault();
-        }
-        else if(event.which == 1) {
-            if($(event.target).is('.autocomplete-emote')) {
-                var cursor = Vowsh.getCursorPosition(input);
-                var space = input.val().slice(0, cursor).lastIndexOf(' ');
-
-                var end = input.val().slice(cursor);
-                if(space > -1) {
-                    var start = input.val().slice(0, space);
-                    input.val(start + ' ' + $(event.target).text() + ' ' + end);
-                }
-                else {
-                    input.val($(event.target).text() + ' ' + end);
-                }
-
-                $('#autocomplete').hide();
-            }
-            else {
-                var space = input.val().length && input.val().substr(input.val().length - 1) != ' ' ? ' ' : '';
-                input.val(input.val() + space + $(event.target).text() + ' ');
-            }
-        }
-
-        setTimeout(function() {
-            input.focus();
-        }, 1);
-    }
-
-    onKeydown(event) {
-        if(event.key == 'Escape')
-            $('.tooltip').tooltip('hide');
-    }
-}
-
-class MoreEmotesFeature extends Feature {
-    constructor(vowsh) {
-        super(vowsh);
-    }
-
-    init() {
-        this.reload();
-    }
-
-    reload() {
-        $.get('https://ryan.gq/vowsh/emoticons?channel=' + btoa(window.location.host)).done(function(emotes) {
-            Vowsh.emotes = emotes;
-            
-            var css = '';
-            for(const emote of Vowsh.emotes.more) {
-                css +=
-                    '.chat-emote-' + emote.name + ' {'
-                        + 'background: url(' + emote.sprite + ') no-repeat;'
-                        + 'background-size: contain;'
-                        + 'background-position: 0px 0px;'
-                        + (emote.name.indexOf('wide') !== 0 ? (
-                            'margin-top: -30px;'
-                            + 'height: 30px;'
-                            + 'width: 30px;'
-                        ) : (
-                            'margin-top: -20px;'
-                            + 'width: 90px;'
-                            + 'height: 20px;'
-                        ))
-                    + '}';
-            }
-            $('body').prepend('<style>' + css + '</style>');
-
-            var emoteList = $('#chat-emote-list .content');
-            var html = '';
-            if(!emoteList.is('.vowshed')) {
-                html += '<div style="font-weight: 900">Vowsh Emotes</div>';
-                html += '<div id="vowsh-emotes" class="emote-group">';
-                for(const emote of Vowsh.emotes.more) {
-                    html +=
-                        '<div class="emote" style="padding: 0.1em">'
-                            + '<span class="chat-emote chat-emote-' + emote.name + '" title="' + emote.name + '">'
-                                + emote.name
-                            + '</span>'
-                        + '</div>';
-                }
-                html += '</div>';
-                emoteList.append(html).addClass('vowshed');
-            }
-
-            var total = emotes.default.length + emotes.more.length;
-            if(Vowsh.user && Vowsh.user.subscription != null)
-                total += emotes.subscribers.length;
-
-            Vowsh.log(Debug, emotes.more.length + ' more emotes (' + total + ' total) are now available!');
-        }).fail(function(a, b, c) {
-            Vowsh.log(Fail, 'Failed to get emote list: ' + 'https://ryan.gq/vowsh/emotes?channel=' + btoa(window.location.host));
-        });
-    }
-}
-
-class LinkPreviewFeature extends Feature {
-    constructor(vowsh) {
-        super(vowsh);
-        this.previews = {};
-    }
-    
-    init() {
-        $('body').on('mouseover', 'a', this.onMouseover.bind(this));
-        $('#chat-input-control').on('keydown', this.onKeydown.bind(this));
-    }
-
-    onMouseover(event) {
-        var target = $(event.target);
-        if(target.attr('href')) {
-            var href = target.attr('href');
-            var hrefEncoded = btoa(href);
-            
-            target
-                .popover({
-                    container: '.chat-lines',
-                    placement: 'auto top',
-                    trigger: 'hover',
-                    title: 'Preview',
-                    content: 'Loading...',
-                    html: 
-                        '<div class="popover" role="tooltip" data-href="' + href + '">'
-                        + '<div class="arrow"></div>'
-                        + '<h3 class="popover-title"></h3>'
-                        + '<div class="popover-content"></div>'
-                        + '</div>'
-                })
-                .popover('show');
-            
-            if(!this.previews.hasOwnProperty(hrefEncoded))
-                this.previews[hrefEncoded] = new LinkPreviewLoader(href);
-            
-            this.previews[hrefEncoded].load(target);
-        }
-    }
-
-    onKeydown(e) {
-        if(e.key == 'Escape') {
-            for(const [link, preview] of Object.entries(this.previews)) {
-                preview.popover.popover('hide');
-            }
-        }
-    }
-}
-
-// Link preview handler.
-class LinkPreviewLoader {
-    constructor(href) {
-        this.href = href;
-        this.content = null;
-        this.popover = null;
-    }
-
-    load(popover) {
-        this.popover = popover;
-
-        if(!this.content) {
-            // Downloads preview.
-            Vowsh.log(Debug, 'Downloading preview for ' + this.href);
-            $.get('https://ryan.gq/vowsh/preview?link=' + btoa(this.href))
-                .done(this.done.bind(this))
-                .fail(function() {
-                    Vowsh.log(Fail, "Failed to load preview: " + preview.href);
-                });
-        }
-        else {
-            this.show();
-        }
-    }
-
-    done(content, status, xhr) {
-        var type = xhr.getResponseHeader('Content-Type');
-        if(type.indexOf('html') > -1) {
-            this.title = '';
-            this.content = content;
-        }
-        else if(type.indexOf('json') > -1) {
-            this.title = content.title;
-            this.content = content.content;
-        }
-        else {
-            Vowsh.log(Fail, 'Unknown preview type returned: ' + type);
-        }
-        this.show();
-    }
-
-    show() {
-        this.popover.data('bs.popover').options.title = this.title;
-        this.popover.data('bs.popover').options.content = this.content;
-        this.popover.popover('show');
-    }
-}
-
 class AutocompleteFeature extends Feature {
     constructor(vowsh) {
         super(vowsh);
@@ -342,6 +125,255 @@ class AutocompleteFeature extends Feature {
     }
 }
 
+class EmoteGrabFeature extends Feature {
+    init() {
+        $('body')
+            .tooltip({selector: '.chat-lines .chat-emote', container: '.chat-lines'})
+            .on('mousedown', '.chat-lines .chat-emote', this.onMousedown.bind(this))
+            
+        $('#chat-input-frame')
+            .tooltip({selector: '#autocomplete .chat-emote', container: '#chat-input-frame'})
+            .on('mousedown', '#autocomplete .chat-emote', this.onMousedown.bind(this))
+            .on('keydown', this.onKeydown.bind(this));
+
+        $('#chat-emote-list').tooltip({selector: '.chat-emote'});
+    }
+
+    onMessage(message) {
+        message.find('.chat-emote').css('cursor', 'pointer');
+    }
+
+    onMousedown(event) {
+        var input = $('#chat-input-control');
+        
+        if(event.which == 2) {
+            Vowsh.log(Debug, 'Copying emote to clipboard...');
+            navigator.clipboard.writeText($(event.target).text() + ' ');
+            event.preventDefault();
+        }
+        else if(event.which == 1) {
+            var autocomplete = $(event.target).is('.autocomplete-emote');
+            Vowsh.insertEmote(input, $(event.target).text(), autocomplete);
+            $('#autocomplete').hide();
+        }
+        setTimeout(function() { input.focus(); }, 1);
+    }
+
+    onKeydown(event) {
+        if(event.key == 'Escape')
+            $('.tooltip').tooltip('hide');
+    }
+}
+
+class LinkPreviewFeature extends Feature {
+    constructor(vowsh) {
+        super(vowsh);
+        this.previews = {};
+    }
+    
+    init() {
+        $('body').on('mouseover', 'a', this.onMouseover.bind(this));
+        $('#chat-input-control').on('keydown', this.onKeydown.bind(this));
+    }
+
+    onMouseover(event) {
+        var target = $(event.target);
+        if(target.attr('href')) {
+            var href = target.attr('href');
+            var hrefEncoded = btoa(href);
+            
+            target
+                .popover({
+                    container: '.chat-lines',
+                    placement: 'auto top',
+                    trigger: 'hover',
+                    title: 'Preview',
+                    content: 'Loading...',
+                    html: 
+                        '<div class="popover" role="tooltip" data-href="' + href + '">'
+                        + '<div class="arrow"></div>'
+                        + '<h3 class="popover-title"></h3>'
+                        + '<div class="popover-content"></div>'
+                        + '</div>'
+                })
+                .popover('show');
+            
+            if(!this.previews.hasOwnProperty(hrefEncoded))
+                this.previews[hrefEncoded] = new LinkPreviewLoader(href);
+            
+            this.previews[hrefEncoded].load(target);
+        }
+    }
+
+    onKeydown(e) {
+        if(e.key == 'Escape') {
+            for(const [link, preview] of Object.entries(this.previews)) {
+                preview.popover.popover('hide');
+            }
+        }
+    }
+}
+
+// Link preview handler.
+class LinkPreviewLoader {
+    constructor(href) {
+        this.href = href;
+        this.content = null;
+        this.popover = null;
+    }
+
+    load(popover) {
+        this.popover = popover;
+
+        if(!this.content) {
+            // Downloads preview.
+            Vowsh.log(Debug, 'Downloading preview for ' + this.href);
+            $.get('https://ryan.gq/vowsh/preview?link=' + btoa(this.href))
+                .done(this.done.bind(this))
+                .fail(function() {
+                    Vowsh.log(Fail, "Failed to load preview: " + preview.href);
+                });
+        }
+        else {
+            this.show();
+        }
+    }
+
+    done(content, status, xhr) {
+        var type = xhr.getResponseHeader('Content-Type');
+        if(type.indexOf('html') > -1) {
+            this.title = '';
+            this.content = content;
+        }
+        else if(type.indexOf('json') > -1) {
+            this.title = content.title;
+            this.content = content.content;
+        }
+        else {
+            Vowsh.log(Fail, 'Unknown preview type returned: ' + type);
+        }
+        this.show();
+    }
+
+    show() {
+        this.popover.data('bs.popover').options.title = this.title;
+        this.popover.data('bs.popover').options.content = this.content;
+        this.popover.popover('show');
+    }
+}
+
+class MacrosFeature extends Feature {
+    constructor(vowsh) {
+        super(vowsh);
+        this.input = $('#chat-input-control');
+    }
+
+    init() {
+        this.input.on('keydown', this.onKeydown.bind(this));
+    }
+
+    onKeydown(e) {
+        var macros = Vowsh.settings.macros.split('\n');
+
+        if(!macros.length)
+            return;
+        
+        if(e.altKey && /^[1-9]$/.test(e.key)) {
+            var index = parseInt(e.key) - 1;
+            if(index >= macros.length || !macros[index].length)
+                return;
+            
+            Vowsh.insertEmote(this.input, macros[index], true);
+        }
+    }
+}
+
+class MoreEmotesFeature extends Feature {
+    constructor(vowsh) {
+        super(vowsh);
+    }
+
+    init() {
+        this.reload();
+    }
+
+    reload() {
+        $.get('https://ryan.gq/vowsh/emoticons?channel=' + btoa(window.location.host)).done(function(emotes) {
+            Vowsh.emotes = emotes;
+            
+            var css = '';
+            for(const emote of Vowsh.emotes.more) {
+                css +=
+                    '.chat-emote-' + emote.name + ' {'
+                        + 'background: url(' + emote.sprite + ') no-repeat;'
+                        + 'background-size: contain;'
+                        + 'background-position: 0px 0px;'
+                        + (emote.name.indexOf('wide') !== 0 ? (
+                            'margin-top: -30px;'
+                            + 'height: 30px;'
+                            + 'width: 30px;'
+                        ) : (
+                            'margin-top: -20px;'
+                            + 'width: 90px;'
+                            + 'height: 20px;'
+                        ))
+                    + '}';
+            }
+            $('body').prepend('<style>' + css + '</style>');
+
+            var emoteList = $('#chat-emote-list .content');
+            var html = '';
+            if(!emoteList.is('.vowshed')) {
+                html += '<div style="font-weight: 900">Vowsh Emotes</div>';
+                html += '<div id="vowsh-emotes" class="emote-group">';
+                for(const emote of Vowsh.emotes.more) {
+                    html +=
+                        '<div class="emote" style="padding: 0.1em">'
+                            + '<span class="chat-emote chat-emote-' + emote.name + '" title="' + emote.name + '">'
+                                + emote.name
+                            + '</span>'
+                        + '</div>';
+                }
+                html += '</div>';
+                emoteList.append(html).addClass('vowshed');
+            }
+
+            var total = emotes.default.length + emotes.more.length;
+            if(Vowsh.user && Vowsh.user.subscription != null)
+                total += emotes.subscribers.length;
+
+            Vowsh.log(Debug, emotes.more.length + ' more emotes (' + total + ' total) are now available!');
+        }).fail(function(a, b, c) {
+            Vowsh.log(Fail, 'Failed to get emote list: ' + 'https://ryan.gq/vowsh/emotes?channel=' + btoa(window.location.host));
+        });
+    }
+}
+
+class NotificationsFeature extends Feature {
+    init() {
+        Notification.requestPermission().then(function(result) {
+            Vowsh.onReady(function() {
+                if(result !== 'granted') {
+                    $('.chat-lines').append('<div class="msg-chat msg-info"><span class="text" style="color: crimson">Notifications are enabled in Vowsh settings, but you haven\'t granted permission yet.</span></div>');
+                }
+            });
+        });
+    }
+
+    onMessage(message) {
+        if(message.is('.msg-highlight') && document.visibilityState != 'visible') {
+            var mention = new Notification(message.data('username') + ' mentioned you');
+            mention.onclick = function() { window.focus(); mention.close(); };
+
+            document.addEventListener('visibilitychange', function() {
+                if(document.visibilityState == 'visible') {
+                    mention.close();
+                }
+            });
+        }
+    }
+}
+
 class PronounsFeature extends Feature {
     constructor(vowsh) {
         super(vowsh);
@@ -368,31 +400,6 @@ class PronounsFeature extends Feature {
             if(user.name.toLowerCase() == username.toLowerCase()) {
                 message.append('<span class="pronouns">' + user.pronouns + '</span>');
             }
-        }
-    }
-}
-
-class NotificationsFeature extends Feature {
-    init() {
-        Notification.requestPermission().then(function(result) {
-            Vowsh.onReady(function() {
-                if(result !== 'granted') {
-                    $('.chat-lines').append('<div class="msg-chat msg-info"><span class="text" style="color: crimson">Notifications are enabled in Vowsh settings, but you haven\'t granted permission yet.</span></div>');
-                }
-            });
-        });
-    }
-
-    onMessage(message) {
-        if(message.is('.msg-highlight') && document.visibilityState != 'visible') {
-            var mention = new Notification(message.data('username') + ' mentioned you');
-            mention.onclick = function() { window.focus(); mention.close(); };
-
-            document.addEventListener('visibilitychange', function() {
-                if(document.visibilityState == 'visible') {
-                    mention.close();
-                }
-            });
         }
     }
 }
@@ -442,6 +449,12 @@ class SettingsFeature extends Feature {
                         'Notify when mentioned' +
                     '</label>' +
                 '</div>' +
+                '<div>' +
+                    '<label for="macros" class="form-check-label">' +
+                        'Macros (one per line)' +
+                    '</label>' +
+                    '<textarea id="macros" class="form-control" placeholder="Alt + 1\nAlt + 2\nAlt + 3\n..."></textarea> ' +
+                '</div>' +
                 '<hr style="border-top: 1px solid #444">'
             )
             .addClass('vowshed');
@@ -472,7 +485,12 @@ class SettingsFeature extends Feature {
             self.storage.local.set({
                 notifications: $(this).is(':checked')
             }, self.reload.bind(self));
-        })
+        });
+        $('#macros').change(function() {
+            self.storage.local.set({
+                macros: $(this).val()
+            }, self.reload.bind(self));
+        });
 
         self.reload(done);
     }
@@ -484,7 +502,8 @@ class SettingsFeature extends Feature {
             enhancedAutocomplete: true,
             readableChat: true,
             pronouns: true,
-            notifications: true
+            notifications: true,
+            macros: ''
         }, function(settings) {
             Vowsh.settings = settings;
             Vowsh.log(Debug, Vowsh.settings);
@@ -494,6 +513,7 @@ class SettingsFeature extends Feature {
             $('#readable-chat').prop('checked', settings.readableChat);
             $('#pronouns').prop('checked', settings.pronouns);
             $('#notifications').prop('checked', settings.notifications);
+            $('#macros').val(settings.macros);
 
             // Apply other settings after chat has loaded.
             Vowsh.onReady(function() {
@@ -554,11 +574,12 @@ class VowshApp {
             if(settings.pronouns)
                 Vowsh.features.push(new PronounsFeature(Vowsh));
             if(settings.notifications)
-                Vowsh.features.push(new NotificationsFeature(this));
+                Vowsh.features.push(new NotificationsFeature(Vowsh));
 
             // Standard features
-            Vowsh.features.push(new EmoteGrabFeature(this));
-            Vowsh.features.push(new LinkPreviewFeature(this));
+            Vowsh.features.push(new EmoteGrabFeature(Vowsh));
+            Vowsh.features.push(new LinkPreviewFeature(Vowsh));
+            Vowsh.features.push(new MacrosFeature(Vowsh));
             
             for(const feature of Vowsh.features) {
                 Vowsh.log(Debug, 'Initializing ' + feature.constructor.name);
@@ -608,19 +629,43 @@ class VowshApp {
 
     // Get the text being typed for autocomplete
     getCursorPosition(input) {
-        var el = input.get(0);
-        var pos = 0;
-        if('selectionStart' in el) {
-            pos = el.selectionStart;
+        input = input.get(0);
+        var index = 0;
+        if('selectionStart' in input) {
+            index = input.selectionStart;
         }
         else if('selection' in document) {
-            el.focus();
-            var Sel = document.selection.createRange();
-            var SelLength = document.selection.createRange().text.length;
-            Sel.moveStart('character', -el.value.length);
-            pos = Sel.text.length - SelLength;
+            input.focus();
+            var selection = document.selection.createRange();
+            var length = document.selection.createRange().text.length;
+            selection.moveStart('character', -input.value.length);
+            index = selection.text.length - length;
         }
-        return pos;
+        return index;
+    }
+
+    insertEmote(input, emote, atCursor=false) {
+        if(atCursor) {
+            var cursor = this.getCursorPosition(input);
+            var space = input.val().slice(0, cursor).lastIndexOf(' ');
+            var end = input.val().slice(cursor);
+            
+            if(space > -1) {
+                var start = input.val().slice(0, space);
+                input.val(start + ' ' + emote + ' ' + end);
+            }
+            else {
+                input.val(emote + ' ' + end);
+            }
+        }
+        else {
+            var space = input.val().length && input.val().substr(input.val().length - 1) != ' ' ? ' ' : '';
+            input.val(input.val() + space + emote + ' ');
+        }
+
+        setTimeout(function() {
+            input.focus();
+        }, 1);
     }
 
     // Log to console

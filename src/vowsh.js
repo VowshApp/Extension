@@ -44,11 +44,12 @@ class VowshApp {
             if(settings.pronouns)
                 Vowsh.features.push(new PronounsFeature(Vowsh));
             if(settings.notifications)
-                Vowsh.features.push(new NotificationsFeature(this));
+                Vowsh.features.push(new NotificationsFeature(Vowsh));
 
             // Standard features
-            Vowsh.features.push(new EmoteGrabFeature(this));
-            Vowsh.features.push(new LinkPreviewFeature(this));
+            Vowsh.features.push(new EmoteGrabFeature(Vowsh));
+            Vowsh.features.push(new LinkPreviewFeature(Vowsh));
+            Vowsh.features.push(new MacrosFeature(Vowsh));
             
             for(const feature of Vowsh.features) {
                 Vowsh.log(Debug, 'Initializing ' + feature.constructor.name);
@@ -98,19 +99,43 @@ class VowshApp {
 
     // Get the text being typed for autocomplete
     getCursorPosition(input) {
-        var el = input.get(0);
-        var pos = 0;
-        if('selectionStart' in el) {
-            pos = el.selectionStart;
+        input = input.get(0);
+        var index = 0;
+        if('selectionStart' in input) {
+            index = input.selectionStart;
         }
         else if('selection' in document) {
-            el.focus();
-            var Sel = document.selection.createRange();
-            var SelLength = document.selection.createRange().text.length;
-            Sel.moveStart('character', -el.value.length);
-            pos = Sel.text.length - SelLength;
+            input.focus();
+            var selection = document.selection.createRange();
+            var length = document.selection.createRange().text.length;
+            selection.moveStart('character', -input.value.length);
+            index = selection.text.length - length;
         }
-        return pos;
+        return index;
+    }
+
+    insertEmote(input, emote, atCursor=false) {
+        if(atCursor) {
+            var cursor = this.getCursorPosition(input);
+            var space = input.val().slice(0, cursor).lastIndexOf(' ');
+            var end = input.val().slice(cursor);
+            
+            if(space > -1) {
+                var start = input.val().slice(0, space);
+                input.val(start + ' ' + emote + ' ' + end);
+            }
+            else {
+                input.val(emote + ' ' + end);
+            }
+        }
+        else {
+            var space = input.val().length && input.val().substr(input.val().length - 1) != ' ' ? ' ' : '';
+            input.val(input.val() + space + emote + ' ');
+        }
+
+        setTimeout(function() {
+            input.focus();
+        }, 1);
     }
 
     // Log to console
