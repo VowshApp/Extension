@@ -16,7 +16,8 @@
           "*://*.rosewrist.com/chat/*",
           "*://*.re-vera.life/chat/*",
           "*://*.surreal.gg/chat/*",
-          "*://*.conure.cc/chat/*"
+          "*://*.conure.cc/chat/*",
+          "*://*.heem.gg/chat/*"
         ],
         "css": [
           "lib/bootstrap-3.4.1.min.css",
@@ -44,7 +45,8 @@
       "https://*.re-vera.life/*",
       "https://*.conure.cc/*",
       "https://*.xanderhal.com/*",
-      "https://*.rosewrist.com/*"
+      "https://*.rosewrist.com/*",
+      "https://*.heem.gg/chat/*"
     ]
   }
   

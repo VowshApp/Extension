@@ -14,12 +14,19 @@ class MacrosFeature extends Feature {
         if(!macros.length)
             return;
         
-        if(e.altKey && /^[1-9]$/.test(e.key)) {
-            var index = parseInt(e.key) - 1;
-            if(index >= macros.length || !macros[index].length)
-                return;
-            
-            Vowsh.insertEmote(this.input, macros[index], true);
+        // TODO - make ac modular to preview macros
+        if(e.altKey) {
+            //$('#autocomplete').show();
+            if(/^[1-9]$/.test(e.key)) {
+                var index = parseInt(e.key) - 1;
+                if(index >= macros.length || !macros[index].length)
+                    return;
+                
+                Vowsh.insertEmote(this.input, macros[index], true);
+            }
+        }
+        else {
+            //$('#autocomplete').hide();
         }
     }
 }

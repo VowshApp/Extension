@@ -19,7 +19,6 @@ class AutocompleteFeature extends Feature {
 
         this.input.on('keyup', this.onKeyup.bind(this));
         this.input.on('keydown', function(event) {
-            // TODO - make this a double press
             if(event.key == 'Escape')
                 $('#autocomplete').hide();
         });
@@ -32,7 +31,7 @@ class AutocompleteFeature extends Feature {
     }
 
     onKeyup(event) {
-        if(this.Vowsh.emotes) {
+        if(this.Vowsh.emotes && !event.altKey) {
             if(this.input.val().length) {
                 // Autocomplete
                 var cursor = this.input.val().slice(0, this.Vowsh.getCursorPosition(this.input));
@@ -278,12 +277,19 @@ class MacrosFeature extends Feature {
         if(!macros.length)
             return;
         
-        if(e.altKey && /^[1-9]$/.test(e.key)) {
-            var index = parseInt(e.key) - 1;
-            if(index >= macros.length || !macros[index].length)
-                return;
-            
-            Vowsh.insertEmote(this.input, macros[index], true);
+        // TODO - make ac modular to preview macros
+        if(e.altKey) {
+            //$('#autocomplete').show();
+            if(/^[1-9]$/.test(e.key)) {
+                var index = parseInt(e.key) - 1;
+                if(index >= macros.length || !macros[index].length)
+                    return;
+                
+                Vowsh.insertEmote(this.input, macros[index], true);
+            }
+        }
+        else {
+            //$('#autocomplete').hide();
         }
     }
 }
