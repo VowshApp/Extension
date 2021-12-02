@@ -6,7 +6,7 @@ Make chat great again with the Vowsh extension. Improve the chatting experience 
 
 ### Supported streams
 
-Fully supported: Vaush.gg, DemonMama.com, Xanderhal.com, Re-Vera.life, RoseWrist.com, Conure.cc
+Fully supported: Vaush.gg, DemonMama.com, Xanderhal.com, Re-Vera.life, RoseWrist.com, Conure.cc, Heem.gg
 
 Vowsh is currently incompatible with Destiny.gg -- let me know if you want that fixed!
 
